@@ -19,7 +19,7 @@ The Fake StackOverflow web application is a simulated platform resembling the po
 1. **Preparation:**
    - Ensure Node.js and npm (Node Package Manager) are installed on your system.
    - Install MongoDB and start a local instance. Refer to the official MongoDB documentation for installation instructions.
-   - Clone the Fake StackOverflow repository from [repository link].
+   - Clone the Fake StackOverflow repository.
 
 2. **Setting Up the Server:**
    - Navigate to the `server` directory of the cloned repository.
@@ -49,7 +49,7 @@ The Fake StackOverflow web application is a simulated platform resembling the po
 
 4. **Accessing the Application:**
    - Once both the server and client are running, open your web browser.
-   - Access the Fake StackOverflow application at `http://localhost:3000`.
+   - Access the Fake StackOverflow application at `http://localhost:8000`.
 
 5. **Exploring the Application:**
    - Use the interface to browse questions, ask new questions, and provide answers.
