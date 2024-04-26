@@ -18,22 +18,26 @@ import WelcomePage from './components/welcomepage.js'; // ***
 function App() {
 
   //Page state variables
-  const [showWelcomePage, setShowWelcomePage] = useState(true); // ***
-  const [showQuestionPage, setShowQuestionPage] = useState(false); // *** chagned to false 
-  const [showTagsPage, setShowTagsPage] = useState(false);
-  const [showSubmitQuestion, setShowSubmitQuestion] = useState(false);
+  //const [showWelcomePage, setShowWelcomePage] = useState(true); // ***
+  //const [showQuestionPage, setShowQuestionPage] = useState(false); // *** chagned to false 
+  //const [showTagsPage, setShowTagsPage] = useState(false);
+  //const [showSubmitQuestion, setShowSubmitQuestion] = useState(false);
   const [showQuestionAnswerPage, setshowQuestionAnswerPage] = useState(null)
   const [showSubmitAnswer, setShowSubmitAnswer] = useState(null)
 
+
+  const [pageView,setPageview] = useState("welcomePage")
+  
   const [questionFilter, setFilter] = useState("newest");
   const [searchString, setSearchString] = useState("");
   const [tagState, setTagState] = useState("");
 
   const handleQuestionPageToggle = () => {
-    setShowWelcomePage(false);
-    setShowQuestionPage(true);
-    setShowTagsPage(false);
-    setShowSubmitQuestion(false);
+    //setShowWelcomePage(false);
+    //setShowQuestionPage(true);
+    //setShowTagsPage(false);
+    //setShowSubmitQuestion(false);
+    setPageview("homePage")
     setshowQuestionAnswerPage(null);
     setShowSubmitAnswer(null);
     setSearchString("");
@@ -45,17 +49,20 @@ function App() {
 
   //Switch to Tags Page
   const handleTagsPageToggle = () => {
-    setShowWelcomePage(false);
-    setShowQuestionPage(false);
-    setShowSubmitQuestion(false);
-    setShowTagsPage(true);
+    //setShowWelcomePage(false);
+    //setShowQuestionPage(false);
+    //setShowSubmitQuestion(false);
+    //setShowTagsPage(true);
+    setPageview("tagsPage")
+
   };
 
   //Proccesses a new search string and passes it down to question
   const handleSearchString = (newString) =>{
     setSearchString(newString);
-    setShowWelcomePage(false);
-    setShowQuestionPage(true);
+    //setShowWelcomePage(false);
+    //setShowQuestionPage(true);
+    setPageview("homePage")
     setTagState("");
     setFilter("newest");
     setshowQuestionAnswerPage(null)
@@ -72,32 +79,35 @@ function App() {
 
   //Passes changes in tag filtering state and passes it down question
   const handleTagStateChange = (newTagState) =>{
-    setShowWelcomePage(false);
+    //setShowWelcomePage(false);
     setTagState(newTagState);
-    setShowTagsPage(false);
-    setShowQuestionPage(null);
+    //setShowTagsPage(false);
+    //setShowQuestionPage(null);
 
-    setShowQuestionPage(true);
+    //setShowQuestionPage(true);
+    setPageview("homePage")
 
   }
 
   //Switches to the submit question page
   const handleSubmitQuestionPageToggle = () => {
-    setShowWelcomePage(false);
-    setShowQuestionPage(false)
-    setShowTagsPage(false);;
-    setShowQuestionPage(null);
+    //setShowWelcomePage(false);
+    //setShowQuestionPage(false)
+    //setShowTagsPage(false);
+    //setShowQuestionPage(null);
 
-    setShowSubmitQuestion(true);
+    //setShowSubmitQuestion(true);
+    setPageview("submitQuestion")
 
   };
 
   //Switches to the answers page of a specific question
   const handleshowQuestionAnswerPage = (question) =>{
-    setShowWelcomePage(false);
-    setShowQuestionPage(false);
-    setShowTagsPage(false);
-    setShowSubmitQuestion(false);
+    //setShowWelcomePage(false);
+    //setShowQuestionPage(false);
+    //setShowTagsPage(false);
+    //setShowSubmitQuestion(false);
+    setPageview(null)
     setshowQuestionAnswerPage(question);
 
   }
@@ -105,10 +115,11 @@ function App() {
   // Switches to the welcome page:
 
   const handleWelcomePageToggle = () => { // ***
-    setShowWelcomePage(true);
-    setShowQuestionPage(false);
-    setShowTagsPage(false);
-    setShowSubmitQuestion(false);
+    //setShowWelcomePage(true);
+    //setShowQuestionPage(false);
+    //setShowTagsPage(false);
+    //setShowSubmitQuestion(false);
+    setPageview("welcomePage");
     setshowQuestionAnswerPage(null);
     setShowSubmitAnswer(null);
     setSearchString("");
@@ -119,26 +130,24 @@ function App() {
 
   //Switches to the answers page of a specific question
   const handleShowSubmitAnswerPage = (question) =>{
-    setShowWelcomePage(false);
-    setShowQuestionPage(false)
-    setShowTagsPage(false)
-    setShowSubmitQuestion(false);
+    //setShowWelcomePage(false);
+    //setShowQuestionPage(false)
+    //setShowTagsPage(false)
+    //setShowSubmitQuestion(false);
+    setPageview(null)
     setshowQuestionAnswerPage(null)
     setShowSubmitAnswer(question)
   }
-  //const handleSubmitQuestionPage = () => {
+  
+  //New handler for changing pages
+  const changePageView = (newPage) =>{
+    setPageview(newPage)
+    setshowQuestionAnswerPage(null)
+    setShowSubmitAnswer(null)
+  }
 
-  //}
 
-
-/*   useEffect(() => {
-    if (!showQuestionPage && !showTagsPage) {
-      // Default to showing the QuestionPage if neither is set
-      setShowQuestionPage(true);
-    }
-  }, [showQuestionPage, showTagsPage]); */
-
-  if (showWelcomePage === true){ // *** 
+  if (pageView === "welcomePage"){ // *** 
     return (
       <>
       <FakeStackOverflowTopbar  toggleWelcomePage = {handleWelcomePageToggle} toggleQuestionPage = {handleQuestionPageToggle} handleSearchString = {handleSearchString} />
@@ -146,7 +155,7 @@ function App() {
       </>
     );
   }
-  else if(showQuestionPage === true){
+  else if(pageView === "homePage"){
     return (
     <>
       <FakeStackOverflowTopbar toggleWelcomePage = {handleWelcomePageToggle} toggleQuestionPage = {handleQuestionPageToggle} handleSearchString = {handleSearchString} />
@@ -155,7 +164,7 @@ function App() {
       handleshowQuestionAnswerPage ={handleshowQuestionAnswerPage} />
     </>
     );
-  }else if(showTagsPage === true){
+  }else if(pageView === "tagsPage"){
     return (
       <>
       <FakeStackOverflowTopbar toggleWelcomePage = {handleWelcomePageToggle} toggleQuestionPage = {handleQuestionPageToggle} handleSearchString = {handleSearchString} />
@@ -163,7 +172,7 @@ function App() {
 
       </>
     )
-  }else if(showSubmitQuestion === true){
+  }else if(pageView === "submitQuestion"){
 
     return(
       <>
