@@ -32,6 +32,8 @@ function App() {
   const [searchString, setSearchString] = useState("");
   const [tagState, setTagState] = useState("");
 
+  const [registeredState, setRegisteredState] = useState(false)
+
   const handleQuestionPageToggle = () => {
     //setShowWelcomePage(false);
     //setShowQuestionPage(true);
@@ -124,7 +126,8 @@ function App() {
     setShowSubmitAnswer(null);
     setSearchString("");
     setFilter("newest");
-    setTagState("");  
+    setTagState("");
+    setRegisteredState(false)
   }
 
 
@@ -146,12 +149,16 @@ function App() {
     setShowSubmitAnswer(null)
   }
 
+  //Handle logging in as a registered user
+  const handleLogIn = () =>{
+    setRegisteredState(true)
+  }
 
   if (pageView === "welcomePage"){ // *** 
     return (
       <>
       <FakeStackOverflowTopbar  toggleWelcomePage = {handleWelcomePageToggle} toggleQuestionPage = {handleQuestionPageToggle} handleSearchString = {handleSearchString} />
-      <WelcomePage  toggleQuestionPage = {handleQuestionPageToggle} handleTagsPageToggle={handleTagsPageToggle} tagState={tagState} handleSubmitQuestionPageToggle={handleSubmitQuestionPageToggle}/>
+      <WelcomePage  toggleQuestionPage = {handleQuestionPageToggle} handleLogIn= {handleLogIn}/>
       </>
     );
   }
@@ -161,7 +168,7 @@ function App() {
       <FakeStackOverflowTopbar toggleWelcomePage = {handleWelcomePageToggle} toggleQuestionPage = {handleQuestionPageToggle} handleSearchString = {handleSearchString} />
       <QuestionPage searchString={searchString} questionFilter = {questionFilter} setFilterHandler={setFilterHandler}
       toggleQuestionPage = {handleQuestionPageToggle} handleTagsPageToggle={handleTagsPageToggle} tagState={tagState} handleSubmitQuestionPageToggle={handleSubmitQuestionPageToggle}
-      handleshowQuestionAnswerPage ={handleshowQuestionAnswerPage} />
+      handleshowQuestionAnswerPage ={handleshowQuestionAnswerPage} registeredState={registeredState} />
     </>
     );
   }else if(pageView === "tagsPage"){
@@ -174,6 +181,10 @@ function App() {
     )
   }else if(pageView === "submitQuestion"){
 
+    if(registeredState === false){
+      alert("LOGICAL ERROR: Guest User")
+      //Logical error, hopefully doesn't trigger
+    }
     return(
       <>
         <FakeStackOverflowTopbar toggleWelcomePage = {handleWelcomePageToggle} toggleQuestionPage = {handleQuestionPageToggle} handleSearchString = {handleSearchString} />
@@ -186,11 +197,15 @@ function App() {
       <>
         <FakeStackOverflowTopbar toggleWelcomePage = {handleWelcomePageToggle} toggleQuestionPage = {handleQuestionPageToggle} handleSearchString = {handleSearchString} />
         <ViewQuestion question ={showQuestionAnswerPage} handleQuestionPageToggle={handleQuestionPageToggle} handleTagsPageToggle={handleTagsPageToggle}
-        handleSubmitQuestionPageToggle={handleSubmitQuestionPageToggle} handleShowSubmitAnswerPage={handleShowSubmitAnswerPage}/>
+        handleSubmitQuestionPageToggle={handleSubmitQuestionPageToggle} handleShowSubmitAnswerPage={handleShowSubmitAnswerPage} registeredState={registeredState} />
 
       </>
     );
   }else if(showSubmitAnswer != null){
+    if(registeredState === false){
+      alert("LOGICAL ERROR: Guest User")
+      //Logical error, hopefully doesn't trigger
+    }
     return(
       <>
         <FakeStackOverflowTopbar toggleWelcomePage = {handleWelcomePageToggle} toggleQuestionPage = {handleQuestionPageToggle} handleSearchString = {handleSearchString} />

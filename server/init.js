@@ -32,7 +32,8 @@ const createAdminUser = async () => {
             username: adminUsername,
             email: `${adminUsername.toLowerCase()}@fake_so.com`,
             passwordHash: hashedPassword,
-            role: 'admin'
+            role: 'admin',
+            reputation: 50
         });
         await adminUser.save();
         console.log('Admin user created successfully.');

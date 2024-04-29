@@ -1,7 +1,7 @@
 import axios from 'axios';
 import React, { useState } from 'react';
 
-const RegisterForm = () => {
+const RegisterForm = ({handleLoginClick}) => {
     const [formData, setFormData] = useState({
         username: '',
         email: '',
@@ -22,6 +22,17 @@ const RegisterForm = () => {
 
         const emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
+        let emailInsidePassword = () =>{
+            let emailAddress = formData.email.split("@")[0]
+
+            if(emailAddress.includes(formData.password)){
+                return true
+            }
+            return false
+        }
+
+
+
         if (formData.email && !emailRegex.test(formData.email)) {
             alert('Invalid email format.');
             return;
@@ -33,15 +44,22 @@ const RegisterForm = () => {
         else if (formData.password !== formData.passwordConfirm) {
             alert('Passwords do not match.');
             return;
+        }else if(emailInsidePassword()){
+            alert('Email contained in password');
+            return;
+        }else if(formData.username.includes(formData.password)){
+            alert('Username contained in password');
+            return;
         }
 
         try {
             await axios.post('http://localhost:8000/register', formData); // change to 8000 !!!!!!!!!!!! ***
             alert('Registration successful!');
+            handleLoginClick()
           
         } catch (error) {
             console.error('Error creating new account', error);
-            alert('Error creating new account. Please try again.');
+            alert(error.response.data.error);
         }
     };
 
@@ -50,10 +68,11 @@ const RegisterForm = () => {
             <form id="registerform" className="form-group">
                 <div>
                     <div className="form-group-reg">
-                        <label className="welc-label"> Username*</label>
+                        <label className="welc-label"> Username</label>
                         <br />
                         <input className="welc-input" type='text' id='username' value={formData.username} onChange={handleInputChange} required></input>
                     </div>
+                    
                     <div className="form-group-reg">
                         <p style={{ display: 'block', textAlign: 'left', color: '#3d3d3d', padding: 0, margin: 0 }}><i>  Provide email in form ********@****.**</i></p>
                         <div style={{ display: 'block', width: '100%' }}>
