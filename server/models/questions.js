@@ -30,8 +30,9 @@ var questionsModelSchema = new Schema ({
         ref: 'answerModel',
     }],
     asked_by: {
-        type: String,
-        default: "Anonymous"
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
     },
     ask_date_time: {
         type: Date,

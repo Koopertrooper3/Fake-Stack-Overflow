@@ -232,7 +232,7 @@ function QuestionElement({ question, tags, date, handleshowQuestionAnswerPage,re
             </div>
             <div className="questionElement">
                 <p className='authorInfo'>
-                    <span className="questionUsername">{question.asked_by}</span> asked {date}
+                    <span className="questionUsername">{question.asked_by.username}</span> asked {date}
                 </p>
             </div>
             {/*

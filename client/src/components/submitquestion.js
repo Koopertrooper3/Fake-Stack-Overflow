@@ -38,10 +38,18 @@ const NewQuestionForm = ({handleQuestionPageToggle}) => {
             tags: tagsArray,
         }
         try {
-            await axios.post('http://localhost:8000/questions', questionPackage, {withCredentials: true});
-            handleQuestionPageToggle()
+            let response = await axios.post('http://localhost:8000/questions', questionPackage, {withCredentials: true});
+
+            if (response.data.success) {
+                console.log('succsess creating question'); // need to redirect to the questions page
+                
+                
+            }else {
+                throw new Error(response.data.error)
+            }
         } catch(error) {
             console.error('Error creating new question', error);
+            throw new Error(error)
         }
     };
 
@@ -82,16 +90,16 @@ const NewQuestionForm = ({handleQuestionPageToggle}) => {
         } else if (tags.some(input => input.length > 20)) {
             document.getElementById('questionTagsError').innerHTML = "A tag should no longer than 20 characters";
         }else {
-            try {
                 
-                submitQuestion(tags)
-
-                // to navigate to the QuestionPage after submitting
-            } catch (error) {
-                console.error('Error creating new question', error);
+            submitQuestion(tags).then(()=>{
                 handleQuestionPageToggle()
+            }).catch((error)=>{
+                if(error.message === "Error: Cannot create Tag")
+                    document.getElementById('questionTagsError').innerHTML = "Not enough reputation to create a new tag";
+            })
 
-            }
+            // to navigate to the QuestionPage after submitting
+            
         }
     }
 

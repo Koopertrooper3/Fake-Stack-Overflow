@@ -84,11 +84,12 @@ app.post('/questions', async (req, res) => {
     try {
         const { title, text, tags } = req.body;
 
+        let authorUser = await UserModel.findOne({email : req.session.user}).exec()
         questionDetails = {
             title: title,
             text: text,
             tags: [],
-            asked_by: UserModel.find({email : req.session.user})
+            asked_by: authorUser.id
         }
 
 
@@ -96,7 +97,13 @@ app.post('/questions', async (req, res) => {
             let tag = await TagsModel.find({name: elem}).exec()
             if(tag.length === 0){
                 //console.log("Tag does not exist");
-                questionDetails.tags.push( await tagCreate(elem))
+
+                //NEED TO BLOCK TAG CREATION FOR USERS WITH LESS THAN 50 REP
+                if(authorUser.reputation >= 50){
+                    questionDetails.tags.push( await tagCreate(elem))
+                }else{
+                    throw new Error("Cannot create Tag");
+                }
             }else{
                 //console.log("Tag exists!")
                 questionDetails.tags.push(tag[0])
@@ -105,12 +112,13 @@ app.post('/questions', async (req, res) => {
         
         const newQuestion = await new questionsModel(questionDetails);
         const savedQuestion = await newQuestion.save();
+        let test = await UserModel.findOneAndUpdate({email : req.session.user}, {$push: { questionsAsked: savedQuestion.id }}).exec();
         const questions = await questionsModel.find().populate('answers').populate('tags');
 
-        res.json(questions);
+        res.json({success:true , questions: questions});
     } catch(error) {
         console.error(error);
-        res.status(500).json({ error: 'Internal Server Error' });
+        res.json({success: false , error: error.message})
     }
 });
 
@@ -139,7 +147,7 @@ app.post('/submitAnswer', async (req, res) => {
 
 app.get('/questions', async (req, res) => {
     try {
-        const questions = await questionsModel.find().populate('answers').populate('tags');
+        const questions = await questionsModel.find().populate('answers').populate('tags').populate('asked_by');
         res.json(questions);
         console.log("Request 1")
     } catch (error) {
