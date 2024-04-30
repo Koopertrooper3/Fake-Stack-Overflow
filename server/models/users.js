@@ -19,7 +19,20 @@ const UserModelSchema = new Schema(
         role: {
             type: String,
             default: 'user'
+        },
+        questionsAsked: [{
+            type: Schema.Types.ObjectId,
+            ref: 'questionsModel',
+        }],
+        tagsCreated: [{
+            type: Schema.Types.ObjectId,
+            ref: 'tagsModel',
+        }],
+        reputation: {
+            type: Number,
+            required: true
         }
+        
     }, 
     { timestamps: true},
 

@@ -32,7 +32,8 @@ const createAdminUser = async () => {
             username: adminUsername,
             email: `${adminUsername.toLowerCase()}@fake_so.com`,
             passwordHash: hashedPassword,
-            role: 'admin'
+            role: 'admin',
+            reputation: 50
         });
         await adminUser.save();
         console.log('Admin user created successfully.');
@@ -40,7 +41,25 @@ const createAdminUser = async () => {
         console.error('Error creating admin user:', error);
     }
 };
-createAdminUser();
+
+async function createUser(username,password,email){
+  try {
+    let testuserpassword = password
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(testuserpassword, saltRounds);
+    const testUser = new UserModel({
+        username: username,
+        email: email,
+        passwordHash: hashedPassword,
+        role: 'user',
+        reputation: 50
+    });
+    console.log('Test user created successfully.');
+    return await testUser.save();
+} catch(error) {
+    console.error('Error creating test user:', error);
+}
+}
 
 let tags = [];
 let answers = [];
@@ -75,6 +94,10 @@ function questionCreate(title, text, tags, answers, asked_by, ask_date_time, vie
 
 const populate = async () => {
     await createAdminUser()
+    let user1 = await createUser("kooper","veryeasypassword","christian.yu@stonybrook.edu")
+    let user2 = await createUser("looper","somewhatharderpassword","reimu.hakurei@stonybrook.edu")
+    let user3 = await createUser("gooper","somewhatharderpassword","marisa.kirisame@stonybrook.edu")
+
     let t1 = await tagCreate('react');
     let t2 = await tagCreate('javascript');
     let t3 = await tagCreate('android-studio');
@@ -84,8 +107,8 @@ const populate = async () => {
     let a3 = await answerCreate('Consider using apply() instead; commit writes its data to persistent storage immediately, whereas apply will handle it in the background.', 'abaya', false);
     let a4 = await answerCreate('YourPreference yourPrefrence = YourPreference.getInstance(context); yourPreference.saveData(YOUR_KEY,YOUR_VALUE);', 'alia', false);
     let a5 = await answerCreate('I just found all the above examples just too confusing, so I wrote my own. ', 'sana', false);
-    await questionCreate('Programmatically navigate using React router', 'the alert shows the proper index for the li clicked, and when I alert the variable within the last function I\'m calling, moveToNextImage(stepClicked), the same value shows but the animation isn\'t happening. This works many other ways, but I\'m trying to pass the index value of the list item clicked to use for the math to calculate.', [t1, t2], [a1, a2], 'Joji John', false, false);
-    await questionCreate('android studio save string shared preference, start activity and load the saved string', 'I am using bottom navigation view but am using custom navigation, so my fragments are not recreated every time i switch to a different view. I just hide/show my fragments depending on the icon selected. The problem i am facing is that whenever a config change happens (dark/light theme), my app crashes. I have 2 fragments in this activity and the below code is what i am using to refrain them from being recreated.', [t3, t4, t2], [a3, a4, a5], 'saltyPeter', false, 121);
+    await questionCreate('Programmatically navigate using React router', 'the alert shows the proper index for the li clicked, and when I alert the variable within the last function I\'m calling, moveToNextImage(stepClicked), the same value shows but the animation isn\'t happening. This works many other ways, but I\'m trying to pass the index value of the list item clicked to use for the math to calculate.', [t1, t2], [a1, a2], user1, false, false);
+    await questionCreate('android studio save string shared preference, start activity and load the saved string', 'I am using bottom navigation view but am using custom navigation, so my fragments are not recreated every time i switch to a different view. I just hide/show my fragments depending on the icon selected. The problem i am facing is that whenever a config change happens (dark/light theme), my app crashes. I have 2 fragments in this activity and the below code is what i am using to refrain them from being recreated.', [t3, t4, t2], [a3, a4, a5], user2, false, 121);
     if(db) db.close();
     console.log('done');
   }

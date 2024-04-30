@@ -18,7 +18,10 @@ const TagsModel = require('./models/tags');
 const UserModel = require('./models/users');
 const questionsModel = require('./models/questions');
 //const TagModel = require('./models/tags');
-app.use(cors());
+app.use(cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+}));
 
 let mongoDB = 'mongodb://127.0.0.1:27017/fake_so';
 mongoose.connect(mongoDB, {useNewUrlParser: true, useUnifiedTopology: true});
@@ -75,14 +78,18 @@ app.delete('/admin/users/:userId', isAdmin, async (req, res) => {
 });
 
 app.post('/questions', async (req, res) => {
+    if(req.session.user){
+        console.log("Is user")
+    }
     try {
-        const { title, text, tags, asked_by } = req.body;
+        const { title, text, tags } = req.body;
 
+        let authorUser = await UserModel.findOne({email : req.session.user}).exec()
         questionDetails = {
             title: title,
             text: text,
             tags: [],
-            asked_by: asked_by
+            asked_by: authorUser.id
         }
 
 
@@ -90,7 +97,13 @@ app.post('/questions', async (req, res) => {
             let tag = await TagsModel.find({name: elem}).exec()
             if(tag.length === 0){
                 //console.log("Tag does not exist");
-                questionDetails.tags.push( await tagCreate(elem))
+
+                //NEED TO BLOCK TAG CREATION FOR USERS WITH LESS THAN 50 REP
+                if(authorUser.reputation >= 50){
+                    questionDetails.tags.push( await tagCreate(elem))
+                }else{
+                    throw new Error("Cannot create Tag");
+                }
             }else{
                 //console.log("Tag exists!")
                 questionDetails.tags.push(tag[0])
@@ -99,12 +112,13 @@ app.post('/questions', async (req, res) => {
         
         const newQuestion = await new questionsModel(questionDetails);
         const savedQuestion = await newQuestion.save();
+        let test = await UserModel.findOneAndUpdate({email : req.session.user}, {$push: { questionsAsked: savedQuestion.id }}).exec();
         const questions = await questionsModel.find().populate('answers').populate('tags');
 
-        res.json(questions);
+        res.json({success:true , questions: questions});
     } catch(error) {
         console.error(error);
-        res.status(500).json({ error: 'Internal Server Error' });
+        res.json({success: false , error: error.message})
     }
 });
 
@@ -133,7 +147,7 @@ app.post('/submitAnswer', async (req, res) => {
 
 app.get('/questions', async (req, res) => {
     try {
-        const questions = await questionsModel.find().populate('answers').populate('tags');
+        const questions = await questionsModel.find().populate('answers').populate('tags').populate('asked_by');
         res.json(questions);
         console.log("Request 1")
     } catch (error) {
@@ -178,7 +192,7 @@ function answerCreate(text, ans_by) {
 
 // LOGIN: 
 
-app.get('/login', async (req, res) => {
+/* app.get('/login', async (req, res) => {
     res.send(`<html><body>
       <h1>Login</h1>
         <form action="/login" method="POST">
@@ -187,7 +201,7 @@ app.get('/login', async (req, res) => {
           <button>Login</button>
         </form>
       </body></html>`);
-});
+}); */
 
 app.post('/login', async (req, res) => {
     const email = req.body.email;
@@ -200,15 +214,15 @@ app.post('/login', async (req, res) => {
         const verdict = await bcrypt.compare(password, user.passwordHash);
         console.log("VERDICT:", verdict);
         if (verdict) {
-            req.session.user = email.trim();
+            req.session.user = email.trim(); //This line builds sessions
             res.json({ success: true, message: 'login successful' });
         }
         else {
-            return res.status(401).json({ success: false, errorMessage: "Wrong email address or password"});
+            return res.json({ success: false, errorMessage: "Wrong password"});
         }
     }
     else {
-        return res.status(401).json({ sucess: false, errorMessage: "Wrong email address or password"});
+        return res.json({ success: false, errorMessage: "Unknown email address"});
     }
 });
 
@@ -226,7 +240,7 @@ app.post('/register', async (req, res) => {
         res.json(savedUser);
     }catch (error) {
         if (error.code === 11000) {
-            return res.status(400).json({ error: 'Email already exists' });
+            return res.status(400).json({ error: 'Email already in use by registered user' });
         }
         console.log(error);
         res.status(500).json({ error: 'Internal Server Error' });

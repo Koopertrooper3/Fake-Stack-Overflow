@@ -55,8 +55,8 @@ class WelcomePage extends Component {
             Continue As Guest
           </button>
         </div>
-        {showLoginForm && <LoginForm toggleQuestionPage ={this.props.toggleQuestionPage} />}
-        {showRegisterForm && <RegisterForm />}
+        {showLoginForm && <LoginForm toggleQuestionPage ={this.props.toggleQuestionPage} handleLogIn={this.props.handleLogIn}/>}
+        {showRegisterForm && <RegisterForm handleLoginClick ={this.handleLoginClick}/>}
       </div>
     );
   }

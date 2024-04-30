@@ -21,7 +21,6 @@ const NewQuestionForm = ({handleQuestionPageToggle}) => {
         new_title: '',
         new_text: '',
         new_tags: '',
-        new_asked_by: '',
     });
 
     const handleInputChange = (event) => {
@@ -37,13 +36,20 @@ const NewQuestionForm = ({handleQuestionPageToggle}) => {
             title: questionData.new_title,
             text: questionData.new_text,
             tags: tagsArray,
-            asked_by: questionData.new_asked_by
         }
         try {
-            await axios.post('http://localhost:8000/questions', questionPackage);
-            handleQuestionPageToggle()
+            let response = await axios.post('http://localhost:8000/questions', questionPackage, {withCredentials: true});
+
+            if (response.data.success) {
+                console.log('succsess creating question'); // need to redirect to the questions page
+                
+                
+            }else {
+                throw new Error(response.data.error)
+            }
         } catch(error) {
             console.error('Error creating new question', error);
+            throw new Error(error)
         }
     };
 
@@ -54,7 +60,6 @@ const NewQuestionForm = ({handleQuestionPageToggle}) => {
             questionTitle: questionData.new_title.trim() !== '',
             questionText: questionData.new_text.trim() !== '',
             questionTags: questionData.new_tags.trim() !== '',
-            questionUsername: questionData.new_asked_by.trim() !== ''
         };
 
         Object.keys(questionInputValidator).forEach(field => {
@@ -71,8 +76,6 @@ const NewQuestionForm = ({handleQuestionPageToggle}) => {
                     return "Please enter your question in the question textbox";
                 } else if (emptyField[0] === "questionTags") {
                     return "Please include at least one tag";
-                } else if (emptyField[0] === "questionUsername") {
-                    return "Please enter your username";
                 }
             }
 
@@ -87,16 +90,16 @@ const NewQuestionForm = ({handleQuestionPageToggle}) => {
         } else if (tags.some(input => input.length > 20)) {
             document.getElementById('questionTagsError').innerHTML = "A tag should no longer than 20 characters";
         }else {
-            try {
                 
-                submitQuestion(tags)
-
-                // to navigate to the QuestionPage after submitting
-            } catch (error) {
-                console.error('Error creating new question', error);
+            submitQuestion(tags).then(()=>{
                 handleQuestionPageToggle()
+            }).catch((error)=>{
+                if(error.message === "Error: Cannot create Tag")
+                    document.getElementById('questionTagsError').innerHTML = "Not enough reputation to create a new tag";
+            })
 
-            }
+            // to navigate to the QuestionPage after submitting
+            
         }
     }
 
@@ -131,10 +134,6 @@ const NewQuestionForm = ({handleQuestionPageToggle}) => {
                     <p><i>Add keywords separated by whitespace</i></p>
                     <input type='text' id='new_tags' value={questionData.new_tags} onChange={handleInputChange} required />
                     <p id='questionTagsError' class = 'errorText'></p>
-                    <h2>Username*</h2>
-                    <input type='text' id='new_asked_by' value={questionData.new_asked_by} onChange={handleInputChange} required />
-                    <p id='questionUsernameError' class = 'errorText'></p>
-                    <br />
                     <button id='questionPost' onClick={verifyQuestionFields}>Post Question</button>
                 </div>
             </div>

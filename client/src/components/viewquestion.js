@@ -7,7 +7,7 @@ import axios from 'axios';
 
 
 
-function ViewQuestion({question, handleQuestionPageToggle, handleTagsPageToggle, handleSubmitQuestionPageToggle,handleShowSubmitAnswerPage}) {
+function ViewQuestion({question, handleQuestionPageToggle, handleTagsPageToggle, handleSubmitQuestionPageToggle,handleShowSubmitAnswerPage,registeredState}) {
 
     
     const [answers,setAnswers] = useState([])
@@ -16,11 +16,11 @@ function ViewQuestion({question, handleQuestionPageToggle, handleTagsPageToggle,
 
         let answerElems = []
         question.answers.forEach((answer)=>{
-            answerElems.push(<AnswerElement answer= {answer} ansDate = {dbFormatDate(answer.ans_date_time)}/>)
+            answerElems.push(<AnswerElement answer= {answer} ansDate = {dbFormatDate(answer.ans_date_time)} registeredState ={registeredState}/>)
         })
 
         setAnswers(answerElems)
-    },[question,setAnswers])
+    },[question,setAnswers,registeredState])
     return(
         <div className='main_body'>
             <table className='main_body'>
@@ -30,9 +30,9 @@ function ViewQuestion({question, handleQuestionPageToggle, handleTagsPageToggle,
                         <FakeStackOverflowSidebar toggleQuestionPage = {handleQuestionPageToggle} handleTagsPageToggle = {handleTagsPageToggle}/>
                         <td id='main_content' className='main_content'>
                             <div>
-                                <QuestionElement question={question} handleSubmitQuestionPageToggle={handleSubmitQuestionPageToggle}/>
+                                <QuestionElement question={question} handleSubmitQuestionPageToggle={handleSubmitQuestionPageToggle} registeredState={registeredState}/>
                                 {answers}
-                                <AnswerQuestionButton question={question} handleShowSubmitAnswerPage={handleShowSubmitAnswerPage}/>
+                                {registeredState && <AnswerQuestionButton question={question} handleShowSubmitAnswerPage={handleShowSubmitAnswerPage}/>}
                             </div>
                         </td>
                     </tr>
@@ -42,7 +42,7 @@ function ViewQuestion({question, handleQuestionPageToggle, handleTagsPageToggle,
     )
 }
 
-function QuestionElement({question,handleSubmitQuestionPageToggle}){
+function QuestionElement({question,handleSubmitQuestionPageToggle,registeredState}){
 
     useEffect( ()=>{
         async function incrementView(){
@@ -70,7 +70,7 @@ function QuestionElement({question,handleSubmitQuestionPageToggle}){
                 <p>{question.text}</p>
             </div>  
             <div className='blockSideContent'>
-                <button id="answer_page_ask_question_button" onClick={handleSubmitQuestionPageToggle}>Ask Question</button>
+                {registeredState &&<button id="answer_page_ask_question_button" onClick={handleSubmitQuestionPageToggle}>Ask Question</button>}
                 <p class="questionUsername">{question.asked_by}</p>
                 <p>{dbFormatDate(question.ask_date_time)}</p>
             </div>                       
@@ -78,7 +78,7 @@ function QuestionElement({question,handleSubmitQuestionPageToggle}){
     );
 }
 
-function AnswerElement({answer,ansDate}){
+function AnswerElement({answer,ansDate,registeredState}){
     const [votes, setVotes] = useState(answer.votes);
     const handleAnswerUpvote = async (answerId) => {
         try {
@@ -86,17 +86,7 @@ function AnswerElement({answer,ansDate}){
     
             const updatedVotes = response.data;
             setVotes(updatedVotes);
-/*
-            this.setState((prevState) => {
-                const updatedAnswers = prevState.answers.map((answer) => {
-                    if (answer._id === answerId) {
-                        return { ...answer, votes: updatedVotes };
-                    }
-                    return answer;
-                });
-                return { answers: updatedAnswers };
-            });
-            */
+
         } catch (error) {
             console.error('Error updating votes:', error);
         }
@@ -108,17 +98,7 @@ function AnswerElement({answer,ansDate}){
     
             const updatedVotes = response.data;
             setVotes(updatedVotes);
-    /*
-            this.setState((prevState) => {
-                const updatedAnswers = prevState.answers.map((answer) => {
-                    if (answer._id === answerId) {
-                        return { ...answer, votes: updatedVotes };
-                    }
-                    return answer;
-                });
-                return { answers: updatedAnswers };
-            });
-*/
+
         } catch (error) {
             console.error('Error updating votes:', error);
         }
@@ -126,7 +106,7 @@ function AnswerElement({answer,ansDate}){
 
     return(
         <div className='answer' key={answer.aid}>
-            <div style={{marginBottom: '20px'}}>
+            {registeredState && <div style={{marginBottom: '20px'}}>
                                 <button style={{color: 'rgb(70, 131, 71)'}} onClick={() => handleAnswerUpvote(answer._id)} className="voteButton" aria-label="Upvote" >
                                 ▲
                                 </button>
@@ -136,7 +116,7 @@ function AnswerElement({answer,ansDate}){
                                 <button style={{color: 'rgb(237, 86, 70)'}} onClick={() => handleAnswerDownvote(answer._id)} className="voteButton" aria-label="Downvote">
                                 ▼
                                 </button>
-            </div> 
+            </div> }
             <div className='answerElement'>
                 <p>{answer.text}</p>
             </div>
