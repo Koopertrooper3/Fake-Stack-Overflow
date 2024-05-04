@@ -12,7 +12,7 @@ class SubmitAnswer extends React.Component {
           <tbody>
             <tr className='main_body'>
               <FakeStackOverflowSidebar toggleQuestionPage={this.props.toggleQuestionPage} handleTagsPageToggle={this.props.handleTagsPageToggle} />
-              <SubmitAnswerForm question={this.props.question} toggleQuestionPage={this.props.toggleQuestionPage} />
+              <SubmitAnswerForm question={this.props.question} toggleQuestionPage={this.props.toggleQuestionPage} changePageView={this.props.changePageView}/>
             </tr>
           </tbody>
         </table>
@@ -21,33 +21,14 @@ class SubmitAnswer extends React.Component {
   }
 }
 
-function SubmitAnswerForm({ question, toggleQuestionPage }) {
+function SubmitAnswerForm({ question, toggleQuestionPage,changePageView }) {
 
 
 
   const [answerInputValidator, setAnswerInputValidator] = React.useState({
-    answerUsername : false,
     answerText : false,
   })
-  const [answerUsername, setAnswerUsername] = React.useState('');
   const [answerText, setAnswerText] = React.useState('');
-
-  const handleUsernameInputChange = (event) => {
-    setAnswerUsername(event.target.value);
-    if(event.target.value.length > 0){
-      const {id} = event.target
-      setAnswerInputValidator((prevData)=>{
-        const newData = { ...prevData, [id]: true}
-        return newData
-      })
-    }else{
-      const {id} = event.target
-      setAnswerInputValidator((prevData)=>{
-        const newData = { ...prevData, [id]: false}
-        return newData
-      })
-    }
-  };
 
   const handleAnswerTextInputChange = (event) => {
     setAnswerText(event.target.value);
@@ -68,10 +49,24 @@ function SubmitAnswerForm({ question, toggleQuestionPage }) {
 
   const submitAnswer = async () => {
     try {
-      await axios.post('http://localhost:8000/submitAnswer', { questionid: question._id, answer_text: answerText, answer_username: answerUsername });
-      toggleQuestionPage();
+      let response = await axios.post('http://localhost:8000/submitAnswer', { questionid: question._id, answer_text: answerText},{withCredentials: true});
+
+      if(response.data.success){
+        changePageView("returnToQuestion",[response.data.updatedQuestion])
+      }else{
+        throw new Error(response.data.error)
+      }
     } catch (error) {
       console.error('Error creating new answer', error);
+
+      if(error.message === "Network Error"){
+        document.getElementById("answerTextError").innerHTML = "Error in trying to connect with the server, please try again later."
+      }else if(error.message === "User not logged in"){
+        alert("User not logged in, please log in again.")
+        changePageView("welcomePage",null)
+      }else{
+        document.getElementById("answerTextError").innerHTML = error.message
+      }
     }
   };
 
@@ -87,9 +82,7 @@ function SubmitAnswerForm({ question, toggleQuestionPage }) {
       let emptyAnsFields = validatorEntires.filter(input => input[1] === false);
 
       function fieldToString(emptyField){
-        if(emptyField[0] === "answerUsername"){
-          return "Please enter your username."
-        }else if(emptyField[0] === "answerText"){
+        if(emptyField[0] === "answerText"){
           return "Please fill in an answer in the answer text"
         }
       }
@@ -107,9 +100,6 @@ function SubmitAnswerForm({ question, toggleQuestionPage }) {
   return (
     <td id="main_content" className="main_content">
       <div className="newAnswer">
-        <h2>Username*</h2>
-        <input type="text" id="answerUsername" value={answerUsername} onChange={handleUsernameInputChange} />
-        <p id="answerUsernameError" className="errorText"></p>
         <h2>Answer Text*</h2>
         <textarea id="answerText" rows="10" cols="100" value={answerText} onChange={handleAnswerTextInputChange}></textarea>
         <p id="answerTextError" className="errorText"></p>

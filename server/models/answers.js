@@ -8,7 +8,8 @@ var answersModelSchema = new Schema({
         required: true
     },
     ans_by: {
-        type: String,
+        type: Schema.Types.ObjectId,
+        ref: 'User',
         required: true
     },
     ans_date_time: {

@@ -228,7 +228,8 @@ function QuestionElement({ question, tags, date, handleshowQuestionAnswerPage,re
             </div>}
             <div className="questionElement">
                 <h3 className='questionTitle' onClick={() => handleshowQuestionAnswerPage(question)} key={question._id}>{question.title}</h3>
-                {tags}
+                <div><p1 className='questionSummary' key={question._id}>{question.summary}</p1></div>
+                <div>{tags}</div>
             </div>
             <div className="questionElement">
                 <p className='authorInfo'>

@@ -8,6 +8,10 @@ var questionsModelSchema = new Schema ({
         maxlength: 100,
         required: true
     },
+    summary: {
+        type: String,
+        required: true
+    },
     text: {
         type: String,
         required: true
