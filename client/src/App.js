@@ -143,10 +143,17 @@ function App() {
   }
   
   //New handler for changing pages
-  const changePageView = (newPage) =>{
-    setPageview(newPage)
-    setshowQuestionAnswerPage(null)
-    setShowSubmitAnswer(null)
+  const changePageView = (newPage,args) =>{
+
+    if(newPage === "returnToQuestion"){
+      setPageview(null)
+      setshowQuestionAnswerPage(args[0])
+    }else{
+      setPageview(newPage)
+      setshowQuestionAnswerPage(null)
+      setShowSubmitAnswer(null)
+    }
+    
   }
 
   //Handle logging in as a registered user
@@ -188,7 +195,7 @@ function App() {
     return(
       <>
         <FakeStackOverflowTopbar toggleWelcomePage = {handleWelcomePageToggle} toggleQuestionPage = {handleQuestionPageToggle} handleSearchString = {handleSearchString} />
-        <NewQuestionPage handleQuestionPageToggle = {handleQuestionPageToggle} handleTagsPageToggle={handleTagsPageToggle}/>
+        <NewQuestionPage handleQuestionPageToggle = {handleQuestionPageToggle} handleTagsPageToggle={handleTagsPageToggle} changePageView={changePageView}/>
       </>
     )
 
@@ -209,7 +216,7 @@ function App() {
     return(
       <>
         <FakeStackOverflowTopbar toggleWelcomePage = {handleWelcomePageToggle} toggleQuestionPage = {handleQuestionPageToggle} handleSearchString = {handleSearchString} />
-        <SubmitAnswer question ={showSubmitAnswer} toggleQuestionPage={handleQuestionPageToggle} handleTagsPageToggle={handleTagsPageToggle}/>
+        <SubmitAnswer question ={showSubmitAnswer} toggleQuestionPage={handleQuestionPageToggle} handleTagsPageToggle={handleTagsPageToggle} changePageView={changePageView}/>
       </>
     )
   }

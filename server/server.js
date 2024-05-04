@@ -17,7 +17,7 @@ const AnswerModel = require('./models/answers');
 const TagsModel = require('./models/tags');
 const UserModel = require('./models/users');
 const questionsModel = require('./models/questions');
-//const TagModel = require('./models/tags');
+
 app.use(cors({
     origin: "http://localhost:3000",
     credentials: true,
@@ -31,6 +31,7 @@ app.use(express.json())
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.urlencoded({ extended: true }));
+
 
 // session: 
 app.use(
@@ -77,22 +78,24 @@ app.delete('/admin/users/:userId', isAdmin, async (req, res) => {
     }
 });
 
-app.post('/questions', async (req, res) => {
-    if(req.session.user){
-        console.log("Is user")
-    }
+app.post('/user/submitquestions', async (req, res) => {
+
     try {
-        const { title, text, tags } = req.body;
+        if(!req.session.user){
+            throw new Error("User not logged in")
+        }
+        const { title, summary ,text, tags } = req.body;
 
         let authorUser = await UserModel.findOne({email : req.session.user}).exec()
         questionDetails = {
             title: title,
+            summary : summary,
             text: text,
             tags: [],
             asked_by: authorUser.id
         }
 
-
+        let tagsCreated = []
         for (const elem of tags){
             let tag = await TagsModel.find({name: elem}).exec()
             if(tag.length === 0){
@@ -100,7 +103,9 @@ app.post('/questions', async (req, res) => {
 
                 //NEED TO BLOCK TAG CREATION FOR USERS WITH LESS THAN 50 REP
                 if(authorUser.reputation >= 50){
-                    questionDetails.tags.push( await tagCreate(elem))
+                    let newTag = await tagCreate(elem)
+                    tagsCreated.push(newTag)
+                    questionDetails.tags.push(newTag)
                 }else{
                     throw new Error("Cannot create Tag");
                 }
@@ -112,10 +117,8 @@ app.post('/questions', async (req, res) => {
         
         const newQuestion = await new questionsModel(questionDetails);
         const savedQuestion = await newQuestion.save();
-        let test = await UserModel.findOneAndUpdate({email : req.session.user}, {$push: { questionsAsked: savedQuestion.id }}).exec();
-        const questions = await questionsModel.find().populate('answers').populate('tags');
-
-        res.json({success:true , questions: questions});
+        let test = await UserModel.findOneAndUpdate({email : req.session.user}, {$push: { questionsAsked: savedQuestion, tagsCreated : {$each : tagsCreated}} }).exec();
+        res.json({success:true});
     } catch(error) {
         console.error(error);
         res.json({success: false , error: error.message})
@@ -135,19 +138,24 @@ app.post('/questionIncrementView', async (req, res) => {
 
 app.post('/submitAnswer', async (req, res) => {
     try {
-        const { questionid, answer_text, answer_username } = req.body;
-        let newAnswer = await answerCreate(answer_text, answer_username)
-        let dbquestion = await questionsModel.findOneAndUpdate({_id: questionid}, {$push: { answers: newAnswer }})
-        res.json(newAnswer)
+        if(!req.session.user){
+            throw new Error("User not logged in")
+        }
+        const { questionid, answer_text} = req.body;
+        let ansUser = await UserModel.findOne({email: req.session.user})
+        let newAnswer = await answerCreate(answer_text, ansUser)
+        await questionsModel.findOneAndUpdate({_id: questionid}, {$push: { answers: newAnswer }}).exec();
+        let updatedQuestion = await questionsModel.findOne({_id: questionid}).populate({path : 'answers',populate : {path : 'ans_by'}}).populate('tags').populate('asked_by');
+        res.json({success: true , updatedQuestion: updatedQuestion})
     } catch(error) {
         console.error(error);
-        res.status(500).json({ error: 'Internal Server Error' });
+        res.json({success: false , error: error.message})
     }
 });
 
 app.get('/questions', async (req, res) => {
     try {
-        const questions = await questionsModel.find().populate('answers').populate('tags').populate('asked_by');
+        const questions = await questionsModel.find().populate({path : 'answers',populate : {path : 'ans_by'}}).populate('tags').populate('asked_by');
         res.json(questions);
         console.log("Request 1")
     } catch (error) {
@@ -175,6 +183,7 @@ app.get('/answers', async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 })
+
 
 //Creation functions
 function tagCreate(name) {
@@ -277,7 +286,9 @@ app.get('/users', async (req, res) => {
 app.post('/incrementVotes', async (req, res) => {
     try {
         const { question } = req.body;
+        //NEED TO BLOCK USERS WITH LESS THAN 50 REP
         const question1 = await questionsModel.findByIdAndUpdate(question._id, { $inc: { votes: 1 } }, { new: true });
+        await UserModel.findByIdAndUpdate(question.asked_by._id, {$inc : {reputation : 5}})
         res.json(question1.votes);
     } catch (error) {
         console.error('Error updating (incrementing) votes:', error);
@@ -285,43 +296,52 @@ app.post('/incrementVotes', async (req, res) => {
     }
   });
 
-  app.post('/decrementVotes', async (req, res) => {
-    try {
-        const { question } = req.body;
-        const question1 = await questionsModel.findByIdAndUpdate(question._id, { $inc: { votes: -1 } }, { new: true });
-        res.json(question1.votes);
+app.post('/decrementVotes', async (req, res) => {
+try {
+    const { question } = req.body;
+            //NEED TO BLOCK USERS WITH LESS THAN 50 REP
 
-    } catch (error) {
-        console.error('Error updating (decrementing) votes:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-  });
+    const question1 = await questionsModel.findByIdAndUpdate(question._id, { $inc: { votes: -1 } }, { new: true });
+    await UserModel.findByIdAndUpdate(question.asked_by._id, {$inc : {reputation : -5}})
+    res.json(question1.votes);
+} catch (error) {
+    console.error('Error updating (decrementing) votes:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+}
+});
 
-  // ANSWER VOTES:
+// ANSWER VOTES:
 
-  app.post('/incrementAnswerVotes', async (req, res) => {
-    try {
-        const { answerId} = req.body;
-        console.log(answerId)
-        const answer1 = await AnswerModel.findByIdAndUpdate(answerId, { $inc: { votes: 1 } }, { new: true });
-        res.json(answer1.votes);
-    } catch (error) {
-        console.error('Error updating views:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-  });
+app.post('/incrementAnswerVotes', async (req, res) => {
+try {
+    const { answerId} = req.body;
+            //NEED TO BLOCK USERS WITH LESS THAN 50 REP
 
-  app.post('/decrementAnswerVotes', async (req, res) => {
-    try {
-        const { answerId } = req.body;
-        const answer1 = await AnswerModel.findByIdAndUpdate(answerId, { $inc: { votes: -1 } }, { new: true });
-        res.json(answer1.votes);
+    console.log(answerId)
+    const answer1 = await AnswerModel.findByIdAndUpdate(answerId, { $inc: { votes: 1 } }, { new: true });
+    await UserModel.findByIdAndUpdate(answer1.ans_by._id, {$inc : {reputation : 5}})
 
-    } catch (error) {
-        console.error('Error updating views:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-  });
+    res.json(answer1.votes);
+} catch (error) {
+    console.error('Error updating views:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+}
+});
+
+app.post('/decrementAnswerVotes', async (req, res) => {
+try {
+    const { answerId } = req.body;
+    //NEED TO BLOCK USERS WITH LESS THAN 50 REP
+
+    const answer1 = await AnswerModel.findByIdAndUpdate(answerId, { $inc: { votes: -1 } }, { new: true });
+    await UserModel.findByIdAndUpdate(answer1.ans_by._id, {$inc : {reputation : -5}})
+    res.json(answer1.votes);
+
+} catch (error) {
+    console.error('Error updating views:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+}
+});
 
 
 app.listen(port, ()=> {

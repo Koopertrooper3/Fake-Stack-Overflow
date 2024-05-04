@@ -53,14 +53,14 @@ function QuestionElement({question,handleSubmitQuestionPageToggle,registeredStat
             }
         }
 
-        question.view += 1
+        question.views += 1
         incrementView()
     },[question]);
     
     return(
         <div className='innerQuestion'>
             <div className='blockSideContent'>
-                <h4>{question.answers.length > 1 ? `${question.answers.length} questions`: `${question.answers.length} question`}</h4>
+                <h4>{question.answers.length > 1 ? `${question.answers.length} answers`: `${question.answers.length} answer`}</h4>
                 <br/>
                 <h4>{question.views} views</h4>
             </div>
@@ -71,7 +71,7 @@ function QuestionElement({question,handleSubmitQuestionPageToggle,registeredStat
             </div>  
             <div className='blockSideContent'>
                 {registeredState &&<button id="answer_page_ask_question_button" onClick={handleSubmitQuestionPageToggle}>Ask Question</button>}
-                <p class="questionUsername">{question.asked_by}</p>
+                <p class="questionUsername">{question.asked_by.username}</p>
                 <p>{dbFormatDate(question.ask_date_time)}</p>
             </div>                       
         </div>
@@ -121,7 +121,7 @@ function AnswerElement({answer,ansDate,registeredState}){
                 <p>{answer.text}</p>
             </div>
             <div className='answerElement'>
-                <p><span style={{color: 'green'}}>{answer.ans_by}</span> <br/>
+                <p><span style={{color: 'green'}}>{answer.ans_by.username}</span> <br/>
                 <span style={{color: 'gray'}}>answered {ansDate}</span></p>
             </div>
         </div>
