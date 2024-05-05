@@ -7,7 +7,7 @@ const LogoutIcon = ({toggleWelcomePage}) => {
   const handleLogout = async () => {
     try {
       // Send POST request to the server for logout
-      await axios.post('http://localhost:8000/logout');
+      await axios.post('http://localhost:8000/logout',{},{withCredentials: true});
       // Redirect to the welcome page after successful logout
       toggleWelcomePage();
       alert("Logout successful")

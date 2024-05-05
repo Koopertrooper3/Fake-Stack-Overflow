@@ -259,16 +259,24 @@ app.post('/register', async (req, res) => {
 // LOGOUT: 
 
 app.post('/logout', (req, res) => {
-    req.session.destroy(err => {
-        if (err) {
-            console.error(err);
-            res.status(500).json({ success: false, errorMessage: 'Logout failed' });
-        }
-        else {
-            res.json({ success: true, message: 'Logout successful' });
-            console.log("logout");
-        }
-    });
+
+    //console.log(req.session.user)
+    if(req.session.user){
+        req.session.destroy(err => {
+            if (err) {
+                console.error(err);
+                res.status(500).json({ success: false, errorMessage: 'Logout failed' });
+            }else {
+                res.json({ success: true, message: 'Logout successful' });
+                console.log("logout");
+            }
+        });
+    }else{
+        res.end()
+    }
+    
+
+
 });
 
 app.get('/users', async (req, res) => {
@@ -287,6 +295,10 @@ app.post('/incrementVotes', async (req, res) => {
     try {
         const { question } = req.body;
         //NEED TO BLOCK USERS WITH LESS THAN 50 REP
+        let user = await UserModel.findOne({email: req.session.user}).exec()
+        if(user.reputation < 50){
+            throw new Error()
+        }
         const question1 = await questionsModel.findByIdAndUpdate(question._id, { $inc: { votes: 1 } }, { new: true });
         await UserModel.findByIdAndUpdate(question.asked_by._id, {$inc : {reputation : 5}})
         res.json(question1.votes);
@@ -299,7 +311,7 @@ app.post('/incrementVotes', async (req, res) => {
 app.post('/decrementVotes', async (req, res) => {
 try {
     const { question } = req.body;
-            //NEED TO BLOCK USERS WITH LESS THAN 50 REP
+    //NEED TO BLOCK USERS WITH LESS THAN 50 REP
 
     const question1 = await questionsModel.findByIdAndUpdate(question._id, { $inc: { votes: -1 } }, { new: true });
     await UserModel.findByIdAndUpdate(question.asked_by._id, {$inc : {reputation : -5}})
@@ -343,7 +355,25 @@ try {
 }
 });
 
+//Cookie probe, check if current cookie is a valid session
 
+app.get('/user/probecookie', async(req, res) => {
+    console.log(req.session.user)
+    try {
+        if(req.session.user){
+            res.json({cookie:true})
+        }else{
+            res.json({cookie:false})
+        }
+    }catch(error){
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+})
+
+app.get('/testcookie', async(req, res) => {
+    console.log(req.session.user)
+
+})
 app.listen(port, ()=> {
     console.log(`Server running on port ${port}`);
 });

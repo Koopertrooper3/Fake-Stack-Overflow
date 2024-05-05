@@ -2,16 +2,18 @@
 // ************** DEFINE YOUR REACT COMPONENTS in ./components directory **************
 import './stylesheets/App.css';
 //import FakeStackOverflow from './components/fakestackoverflow.js'
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {QuestionPage} from './components/questionpagecomponent.js'
 import { FakeStackOverflowTopbar } from './components/globalcomponents.js';
 import { TagsPage } from './components/tagspagecomponent.js';
 import NewQuestionPage from './components/submitquestion.js'
 import ViewQuestion from './components/viewquestion.js';
 import SubmitAnswer from './components/submitanswer.js';
+import { UserProfile } from './components/userprofile.js';
 
 
 import WelcomePage from './components/welcomepage.js'; // ***
+import axios from 'axios';
 //Enter here, use this component to maintain state across the entire website
 //This component will do the branching and switching between pages
 
@@ -161,21 +163,45 @@ function App() {
     setRegisteredState(true)
   }
 
-  if (pageView === "welcomePage"){ // *** 
+  useEffect( ()=>{
+    async function checkCookie(){
+     let response = await axios.get(`http://localhost:8000/user/probecookie`,{withCredentials: true})
+
+     if(response.data.cookie){
+      setRegisteredState(true)
+      changePageView("homePage")
+     }else{
+      setRegisteredState(false)
+      changePageView("welcomePage")
+     }
+    }
+
+    checkCookie()
+  },)
+
+
+  if (pageView === "welcomePage" && registeredState === false){ // *** 
     return (
       <>
       <FakeStackOverflowTopbar  toggleWelcomePage = {handleWelcomePageToggle} toggleQuestionPage = {handleQuestionPageToggle} handleSearchString = {handleSearchString} />
       <WelcomePage  toggleQuestionPage = {handleQuestionPageToggle} handleLogIn= {handleLogIn}/>
       </>
     );
-  }
-  else if(pageView === "homePage"){
+  }else if(pageView === "userProfile"){
+
+    return(
+      <>
+      <FakeStackOverflowTopbar toggleWelcomePage = {handleWelcomePageToggle} toggleQuestionPage = {handleQuestionPageToggle} handleSearchString = {handleSearchString} />
+      <UserProfile handleQuestionPageToggle = {handleQuestionPageToggle} handleTagsPageToggle={handleTagsPageToggle} />
+      </>
+    )
+  }else if(pageView === "homePage"){
     return (
     <>
       <FakeStackOverflowTopbar toggleWelcomePage = {handleWelcomePageToggle} toggleQuestionPage = {handleQuestionPageToggle} handleSearchString = {handleSearchString} />
       <QuestionPage searchString={searchString} questionFilter = {questionFilter} setFilterHandler={setFilterHandler}
       toggleQuestionPage = {handleQuestionPageToggle} handleTagsPageToggle={handleTagsPageToggle} tagState={tagState} handleSubmitQuestionPageToggle={handleSubmitQuestionPageToggle}
-      handleshowQuestionAnswerPage ={handleshowQuestionAnswerPage} registeredState={registeredState} />
+      handleshowQuestionAnswerPage ={handleshowQuestionAnswerPage} registeredState={registeredState} changePageView={changePageView}/>
     </>
     );
   }else if(pageView === "tagsPage"){

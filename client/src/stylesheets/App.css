@@ -114,7 +114,7 @@ table.header{ /* #page_header */
 
     div.main_body{
         height: 80%;
-        overflow-y: scroll;
+        overflow-y: auto;
     } /* same #main_body */
     table.main_body{
         /* background-color:rgb(255, 88, 88); */
