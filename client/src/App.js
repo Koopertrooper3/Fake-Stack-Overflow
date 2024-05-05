@@ -169,10 +169,11 @@ function App() {
 
      if(response.data.cookie){
       setRegisteredState(true)
-      changePageView("homePage")
+      if(pageView === 'welcomePage'){
+        changePageView("homePage")
+      }
      }else{
       setRegisteredState(false)
-      changePageView("welcomePage")
      }
     }
 

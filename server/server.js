@@ -312,7 +312,10 @@ app.post('/decrementVotes', async (req, res) => {
 try {
     const { question } = req.body;
     //NEED TO BLOCK USERS WITH LESS THAN 50 REP
-
+    let user = await UserModel.findOne({email: req.session.user}).exec()
+    if(user.reputation < 50){
+        throw new Error()
+    }
     const question1 = await questionsModel.findByIdAndUpdate(question._id, { $inc: { votes: -1 } }, { new: true });
     await UserModel.findByIdAndUpdate(question.asked_by._id, {$inc : {reputation : -5}})
     res.json(question1.votes);
@@ -327,8 +330,11 @@ try {
 app.post('/incrementAnswerVotes', async (req, res) => {
 try {
     const { answerId} = req.body;
-            //NEED TO BLOCK USERS WITH LESS THAN 50 REP
-
+    //NEED TO BLOCK USERS WITH LESS THAN 50 REP
+    let user = await UserModel.findOne({email: req.session.user}).exec()
+    if(user.reputation < 50){
+        throw new Error()
+    }
     console.log(answerId)
     const answer1 = await AnswerModel.findByIdAndUpdate(answerId, { $inc: { votes: 1 } }, { new: true });
     await UserModel.findByIdAndUpdate(answer1.ans_by._id, {$inc : {reputation : 5}})
@@ -344,7 +350,10 @@ app.post('/decrementAnswerVotes', async (req, res) => {
 try {
     const { answerId } = req.body;
     //NEED TO BLOCK USERS WITH LESS THAN 50 REP
-
+    let user = await UserModel.findOne({email: req.session.user}).exec()
+    if(user.reputation < 50){
+        throw new Error()
+    }
     const answer1 = await AnswerModel.findByIdAndUpdate(answerId, { $inc: { votes: -1 } }, { new: true });
     await UserModel.findByIdAndUpdate(answer1.ans_by._id, {$inc : {reputation : -5}})
     res.json(answer1.votes);

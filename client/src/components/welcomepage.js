@@ -1,7 +1,6 @@
-import React, { Component } from 'react';
+import React, { Component,useEffect } from 'react';
 import LoginForm from './loginform';
 import RegisterForm from './registerform';
-
 class WelcomePage extends Component {
   constructor(props) {
     super(props);

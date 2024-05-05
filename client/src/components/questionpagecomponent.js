@@ -184,7 +184,7 @@ function QuestionElement({ question, tags, date, handleshowQuestionAnswerPage,re
 
     const handleUpvote = async () => {
         try {
-            const response = await axios.post('http://localhost:8000/incrementVotes', { question });
+            const response = await axios.post('http://localhost:8000/incrementVotes', { question },{withCredentials: true});
             if (response.status === 200) {
                 // Update the question's votes directly from the server response
                 question.votes += 1;
@@ -198,7 +198,7 @@ function QuestionElement({ question, tags, date, handleshowQuestionAnswerPage,re
 
     const handleDownvote = async () => {
         try {
-            const response = await axios.post('http://localhost:8000/decrementVotes', { question });
+            const response = await axios.post('http://localhost:8000/decrementVotes', { question },{withCredentials: true});
             if (response.status === 200) {
                 // Update the question's votes directly from the server response
                 question.votes -= 1;
