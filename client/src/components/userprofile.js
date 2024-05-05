@@ -3,7 +3,34 @@ import '../stylesheets/App.css';
 import {FakeStackOverflowSidebar } from './globalcomponents.js';
 import axios from 'axios';
 
-export function UserProfile({handleQuestionPageToggle,handleTagsPageToggle}) {
+export function UserProfile({handleQuestionPageToggle,handleTagsPageToggle,changePageView}) {
+
+    const [user,setUser] = useState(null)
+    const [userName, setUsername] = useState("")
+    const [userReputation,setUserReputation] = useState(50)
+    const [joinedByDate,setJoinedByDate] = useState("")
+    const [userQuestions,setUserQuestions] = useState([])
+    
+    useEffect(() =>{
+ 
+        async function retriveUser(){
+            const response = await axios.get('http://localhost:8000/user/userinfo', {withCredentials: true});
+            let thisuser = response.data.user
+            setUser(thisuser)
+            setUsername(thisuser.username)
+            setUserReputation(thisuser.reputation)
+            setUserQuestions(thisuser.questionsAsked)
+
+            const options = {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              };
+            setJoinedByDate( new Date(thisuser.joinedDate).toLocaleDateString("en-US",options) );
+        }
+        
+        retriveUser()
+    },[])
     return (
         <div id ="main_body" className="main_body">
             <table className="main_body">
@@ -11,13 +38,59 @@ export function UserProfile({handleQuestionPageToggle,handleTagsPageToggle}) {
                     <tr className='main_body'>
                         <FakeStackOverflowSidebar toggleQuestionPage = {handleQuestionPageToggle} handleTagsPageToggle = {handleTagsPageToggle}/>
                         <td>
-                            <div className='userDetails'></div>
-                            <div className='userQuestions'></div>
-                            <div className='userTags'></div>
+                            <UserDetails username ={userName} userReputation={userReputation} joinedByDate={joinedByDate}/>
+                            <UserQuestions userQuestions = {userQuestions} changePageView ={changePageView}/>
+                            <div className='userTags'><h1>userDetails</h1></div>
                         </td>
                     </tr>
                 </tbody>
             </table>
         </div>
     );
+}
+
+function UserDetails({username,userReputation,joinedByDate}){
+
+    return(
+        <div className='userDetails'>
+            <p className='userDetailsText'>Username : {username}</p>
+            <p className='userDetailsText'>Reputation : {userReputation}</p>
+            <p className='userDetailsText'>Joined at : {joinedByDate}</p>
+        </div>
+    );
+}
+
+function UserQuestions({userQuestions,changePageView}){
+
+
+    let [questionElements, setQuestionElements] = useState([])
+    useEffect( ()=>{
+
+        let arrayOfQuestionElements = []
+        userQuestions.forEach( (elem) =>{
+            arrayOfQuestionElements.push(<QuestionElement questionTitle={elem.title} question ={elem} changePageView={changePageView}/> )
+
+        }
+        )
+
+        setQuestionElements(arrayOfQuestionElements)
+    },[userQuestions,changePageView,setQuestionElements])
+    return(
+        <div className='userQuestions'>
+            {questionElements}
+        </div>
+    );
+}
+
+function QuestionElement({questionTitle,question,changePageView}){
+
+
+    const handleQuestionClick = (question) =>{
+        changePageView("editQuestion",[question])
+    }
+
+    return(
+        <p onClick={ () => handleQuestionClick(question)}>{questionTitle}</p>
+    )
+
 }

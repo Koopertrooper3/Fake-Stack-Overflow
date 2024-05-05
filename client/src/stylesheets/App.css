@@ -524,3 +524,29 @@ svg:hover{
   font-size: 23px;
   cursor: pointer;
 }
+
+.userDetails{
+  border: 5px;
+  border-style: solid;
+  margin-left: 50px;
+  margin-right: 50px;
+  margin-bottom: 50px;
+
+}
+.userQuestions{
+  border: 5px;
+  border-style: solid;
+  margin-left: 50px;
+  margin-right: 50px;
+
+}.userTags{
+  border: 5px;
+  border-style: solid;
+  margin-left: 50px;
+  margin-right: 50px;
+
+}
+.userDetailsText{
+  text-align: left;
+  padding-left: 15px;
+}

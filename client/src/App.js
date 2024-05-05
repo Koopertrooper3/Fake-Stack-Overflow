@@ -10,7 +10,7 @@ import NewQuestionPage from './components/submitquestion.js'
 import ViewQuestion from './components/viewquestion.js';
 import SubmitAnswer from './components/submitanswer.js';
 import { UserProfile } from './components/userprofile.js';
-
+import { EditQuestionPage } from './components/editquestion.js';
 
 import WelcomePage from './components/welcomepage.js'; // ***
 import axios from 'axios';
@@ -26,7 +26,7 @@ function App() {
   //const [showSubmitQuestion, setShowSubmitQuestion] = useState(false);
   const [showQuestionAnswerPage, setshowQuestionAnswerPage] = useState(null)
   const [showSubmitAnswer, setShowSubmitAnswer] = useState(null)
-
+  const [showEditedQuestion, setShowEditedQuestion] = useState(null)
 
   const [pageView,setPageview] = useState("welcomePage")
   
@@ -150,6 +150,10 @@ function App() {
     if(newPage === "returnToQuestion"){
       setPageview(null)
       setshowQuestionAnswerPage(args[0])
+
+    }else if(newPage === "editQuestion"){
+      setPageview("editQuestion")
+      setShowEditedQuestion(args[0])
     }else{
       setPageview(newPage)
       setshowQuestionAnswerPage(null)
@@ -193,7 +197,15 @@ function App() {
     return(
       <>
       <FakeStackOverflowTopbar toggleWelcomePage = {handleWelcomePageToggle} toggleQuestionPage = {handleQuestionPageToggle} handleSearchString = {handleSearchString} />
-      <UserProfile handleQuestionPageToggle = {handleQuestionPageToggle} handleTagsPageToggle={handleTagsPageToggle} />
+      <UserProfile handleQuestionPageToggle = {handleQuestionPageToggle} handleTagsPageToggle={handleTagsPageToggle} changePageView ={changePageView}/>
+      </>
+    )
+  }else if(pageView === "editQuestion"){
+    return(
+      <>
+        <FakeStackOverflowTopbar toggleWelcomePage = {handleWelcomePageToggle} toggleQuestionPage = {handleQuestionPageToggle} handleSearchString = {handleSearchString} />
+        <EditQuestionPage handleQuestionPageToggle = {handleQuestionPageToggle} handleTagsPageToggle={handleTagsPageToggle} changePageView ={changePageView}
+        subjectQuestion = {showEditedQuestion}/>
       </>
     )
   }else if(pageView === "homePage"){

@@ -17,6 +17,7 @@ const AnswerModel = require('./models/answers');
 const TagsModel = require('./models/tags');
 const UserModel = require('./models/users');
 const questionsModel = require('./models/questions');
+const commentsModel = require('./models/comments');
 
 app.use(cors({
     origin: "http://localhost:3000",
@@ -111,7 +112,10 @@ app.post('/user/submitquestions', async (req, res) => {
                 }
             }else{
                 //console.log("Tag exists!")
-                questionDetails.tags.push(tag[0])
+                tag = tag[0]
+                tag.refcount += 1
+                tag.save()
+                questionDetails.tags.push(tag)
             }
         }
         
@@ -155,6 +159,7 @@ app.post('/submitAnswer', async (req, res) => {
 
 app.get('/questions', async (req, res) => {
     try {
+        //Deep popullate the answers as well as their authors
         const questions = await questionsModel.find().populate({path : 'answers',populate : {path : 'ans_by'}}).populate('tags').populate('asked_by');
         res.json(questions);
         console.log("Request 1")
@@ -187,7 +192,10 @@ app.get('/answers', async (req, res) => {
 
 //Creation functions
 function tagCreate(name) {
-    let tag = new TagsModel({ name: name });
+    let tag = new TagsModel({ 
+        name: name, 
+        refcount: 1
+    });
     return tag.save();
 }
 
@@ -379,10 +387,65 @@ app.get('/user/probecookie', async(req, res) => {
     }
 })
 
-app.get('/testcookie', async(req, res) => {
+app.get('/user/userinfo', async(req, res) => {
     console.log(req.session.user)
-
+    try {
+        let user = await UserModel.findOne({email: req.session.user}).populate("questionsAsked").populate("tagsCreated").exec()
+        res.json({user})
+    }catch(error){
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
 })
+
+app.get('/singlequestion/:questionid', async(req, res) => {
+    try {
+        let question = await questionsModel.findOne({_id: req.params.questionid}).populate("tags").exec()
+        res.json({question})
+    }catch(error){
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+})
+
+app.delete('/singlequestion/:questionid', async(req,res) =>{
+    try {
+        let question = await questionsModel.findOne({_id: req.params.questionid}).populate("answers").exec()
+
+        for await (const answerElem of question.answers){
+            for await (const commentElem of answerElem.comments){
+                await commentsModel.deleteOne({_id: commentElem})
+            }
+
+            let test = await answerElem.deleteOne({_id: answerElem._id})
+        }
+        let res = await question.deleteOne({_id: question._id})
+        if(res === 1){
+            console.log("Question Deleted")
+        }
+    }catch(error){
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+})
+
+app.post('/editQuestion/:questionid', async(req,res) =>{
+    try {
+        let question = await questionsModel.findOne({_id: req.params.questionid}).populate("answers").exec()
+
+        for await (const answerElem of question.answers){
+            for await (const commentElem of answerElem.comments){
+                await commentsModel.deleteOne({_id: commentElem})
+            }
+
+            let test = await answerElem.deleteOne({_id: answerElem._id})
+        }
+        let res = await question.deleteOne({_id: question._id})
+        if(res === 1){
+            console.log("Question Deleted")
+        }
+    }catch(error){
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+})
+
 app.listen(port, ()=> {
     console.log(`Server running on port ${port}`);
 });
