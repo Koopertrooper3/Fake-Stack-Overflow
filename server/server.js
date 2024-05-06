@@ -18,13 +18,13 @@ const TagsModel = require('./models/tags');
 const UserModel = require('./models/users');
 const questionsModel = require('./models/questions');
 const commentsModel = require('./models/comments');
-/*
+
 app.use(cors({
     origin: "http://localhost:3000",
     credentials: true,
 }));
-*/
-app.use(cors());
+
+//app.use(cors());
 
 
 let mongoDB = 'mongodb://127.0.0.1:27017/fake_so';
