@@ -124,7 +124,7 @@ const populate = async () => {
     let user2 = await createUser("looper","somewhatharderpassword","reimu.hakurei@stonybrook.edu",50,'2010-09-14')
     let naughtyuser = await createUser("marisa.kirisame","somewhatharderpassword","marisa.kirisame@stonybrook.edu",30,'2008-11-03')
 
-    let ansuser1 = await createUser("hong.meiling","scarletmansion1","hong meiling@stonybrook.edu",50,'20014-11-17')
+    let ansuser1 = await createUser("hong.meiling","scarletmansion1","hong.meiling@stonybrook.edu",50,'2014-11-17')
     let ansuser2 = await createUser("sakuya.izayoi","scarletmansion2","sakuya.izayoi@stonybrook.edu",50,'2016-03-15')
     let ansuser3 = await createUser("patchouli.knowledge","scarletmansion3","patchouli.knowledge@stonybrook.edu",50,'2011-08-09')
     let ansuser4 = await createUser("lastansuser","decentpassword","lastansuser@gmail.com",50,'2013-07-21')

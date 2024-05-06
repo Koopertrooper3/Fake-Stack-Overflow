@@ -34,7 +34,7 @@ const UserModelSchema = new Schema(
         }],
         reputation: {
             type: Number,
-            required: true
+            default: 50
         },
         joinedDate: {
             type: Date,
