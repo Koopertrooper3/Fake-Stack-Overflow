@@ -19,13 +19,21 @@ const UserModel = require('./models/users');
 const questionsModel = require('./models/questions');
 const commentsModel = require('./models/comments');
 
+
+
+
 app.use(cors({
     origin: "http://localhost:3000",
     credentials: true,
 }));
 
+//app.use(cors());
+
+
 let mongoDB = 'mongodb://127.0.0.1:27017/fake_so';
 mongoose.connect(mongoDB, {useNewUrlParser: true, useUnifiedTopology: true});
+
+
 const db = mongoose.connection;
 
 app.use(express.json())
@@ -34,7 +42,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.urlencoded({ extended: true }));
 
 
-// session: 
+// session:
 app.use(
     session({
       secret: "supersecret difficult to guess string",
@@ -131,7 +139,7 @@ app.post('/user/submitquestions', async (req, res) => {
                 questionDetails.tags.push(tag)
             }
         }
-        
+
         const newQuestion = await new questionsModel(questionDetails);
         const savedQuestion = await newQuestion.save();
         let test = await UserModel.findOneAndUpdate({email : req.session.user}, {$push: { questionsAsked: savedQuestion, tagsCreated : {$each : tagsCreated}} }).exec();
@@ -209,8 +217,8 @@ app.get('/answers', async (req, res) => {
 
 //Creation functions
 function tagCreate(name) {
-    let tag = new TagsModel({ 
-        name: name, 
+    let tag = new TagsModel({
+        name: name,
         refcount: 1
     });
     return tag.save();
@@ -219,12 +227,12 @@ function tagCreate(name) {
 function answerCreate(text, ans_by) {
     answerdetail = {text:text};
     if (ans_by != false) answerdetail.ans_by = ans_by;
-  
+
     let answer = new AnswerModel(answerdetail);
     return answer.save();
 }
 
-// LOGIN: 
+// LOGIN:
 
 app.post('/login', async (req, res) => {
     const email = req.body.email;
@@ -270,7 +278,7 @@ app.post('/register', async (req, res) => {
     }
 });
 
-// LOGOUT: 
+// LOGOUT:
 
 app.post('/logout', (req, res) => {
 
@@ -288,7 +296,7 @@ app.post('/logout', (req, res) => {
     }else{
         res.end()
     }
-    
+
 
 
 });
@@ -303,7 +311,7 @@ app.get('/users', async (req, res) => {
     }
 });
 
-// QUESTION VOTES: 
+// QUESTION VOTES:
 
 app.post('/incrementVotes', async (req, res) => {
     try {
@@ -490,7 +498,7 @@ app.post('/user/editQuestion/:questionid', async (req, res) => {
                 questionDetails.tags.push(tag)
             }
         }
-        
+
         const newQuestion = await new questionsModel(questionDetails);
         let replacetest = await questionsModel.findOneAndReplace({_id: req.params.questionid}, questionDetails)
         let test = await UserModel.findOneAndUpdate({email : req.session.user}, {$push: {tagsCreated : {$each : tagsCreated}} }).exec();
@@ -571,3 +579,49 @@ app.listen(port, ()=> {
     console.log(`Server running on port ${port}`);
 });
 
+
+
+// For comments:
+
+app.post('/addComment', async (req, res) => {
+    try {
+        if(!req.session.user){
+            throw new Error("User not logged in")
+        }
+        const { questionId, text } = req.body;
+        let authorUser = await UserModel.findOne({email : req.session.user}).exec()
+        const newComment = new commentsModel({
+            question: questionId,
+            text: text,
+            comment_by: authorUser
+        });
+        await newComment.save();
+
+        await questionsModel.findByIdAndUpdate(questionId, { $push: { comments: newComment._id } });
+
+
+        res.json({ success: true, message: 'Comment added successfully' });
+    } catch (error) {
+        console.error('Error adding comment:', error);
+        res.status(500).json({ success: false, error: 'Internal Server Error' });
+    }
+});
+
+app.get('/comments/:questionId', async (req, res) => {
+    try {
+        const questionId = req.params.questionId;
+        const question = await questionsModel.findById(questionId).populate({
+            path: 'comments',
+            populate: {
+                path: 'comment_by',
+                select: 'username' 
+            }
+        }).exec();
+        const comments = question.comments;
+
+        res.json({ success: true, comments: comments });
+    } catch (error) {
+        console.error('Error fetching comments:', error);
+        res.status(500).json({ success: false, error: 'Internal Server Error' });
+    }
+});
