@@ -65,6 +65,9 @@ export class FakeStackOverflowSidebar extends React.Component{
   handleTagsClick(){
     this.props.handleTagsPageToggle()
   }
+  handleUserProfile(){
+    this.props.changePageView("userProfile")
+  }
   
   render(){
       return(
@@ -73,6 +76,7 @@ export class FakeStackOverflowSidebar extends React.Component{
             <ul className="side_content">
               <li className="side_content"> <h2 id="side_questions" onClick={this.handleQuestionClick.bind(this)}>Questions</h2></li>
               <li className="side_content"> <h2 id="side_tags" onClick={this.handleTagsClick.bind(this)}>Tags</h2></li>
+              {this.props.registeredState && <li className="side_content"> <h2 id="side_tags" onClick={this.handleUserProfile.bind(this)}>User Profile</h2></li>}
             </ul>
           </div>
         </td>

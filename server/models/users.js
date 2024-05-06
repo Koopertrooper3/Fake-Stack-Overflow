@@ -24,6 +24,10 @@ const UserModelSchema = new Schema(
             type: Schema.Types.ObjectId,
             ref: 'questionsModel',
         }],
+        questionsAnswered: [{
+            type: Schema.Types.ObjectId,
+            ref: 'questionsModel',
+        }],
         tagsCreated: [{
             type: Schema.Types.ObjectId,
             ref: 'tagsModel',
@@ -31,10 +35,20 @@ const UserModelSchema = new Schema(
         reputation: {
             type: Number,
             required: true
+        },
+        joinedDate: {
+            type: Date,
+            default: Date.now
         }
         
     }, 
     { timestamps: true},
 
 )
+
+UserModelSchema
+.virtual('url')
+.get(function () {
+  return ' posts/tag/' + this._id;
+});
 module.exports = mongoose.model('User', UserModelSchema);
