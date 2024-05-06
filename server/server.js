@@ -20,7 +20,7 @@ const questionsModel = require('./models/questions');
 const commentsModel = require('./models/comments');
 
 
-const commentsModel = require('./models/comments');
+
 
 app.use(cors({
     origin: "http://localhost:3000",
