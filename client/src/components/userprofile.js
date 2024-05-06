@@ -5,21 +5,20 @@ import axios from 'axios';
 
 export function UserProfile({handleQuestionPageToggle,handleTagsPageToggle,changePageView}) {
 
-    const [user,setUser] = useState(null)
     const [userName, setUsername] = useState("")
     const [userReputation,setUserReputation] = useState(50)
     const [joinedByDate,setJoinedByDate] = useState("")
     const [userQuestions,setUserQuestions] = useState([])
-    
+    const [tagsCreated,setTagsCreated] = useState([])
     useEffect(() =>{
  
         async function retriveUser(){
             const response = await axios.get('http://localhost:8000/user/userinfo', {withCredentials: true});
             let thisuser = response.data.user
-            setUser(thisuser)
             setUsername(thisuser.username)
             setUserReputation(thisuser.reputation)
             setUserQuestions(thisuser.questionsAsked)
+            setTagsCreated(thisuser.tagsCreated)
 
             const options = {
                 year: "numeric",
@@ -40,7 +39,9 @@ export function UserProfile({handleQuestionPageToggle,handleTagsPageToggle,chang
                         <td>
                             <UserDetails username ={userName} userReputation={userReputation} joinedByDate={joinedByDate}/>
                             <UserQuestions userQuestions = {userQuestions} changePageView ={changePageView}/>
-                            <div className='userTags'><h1>userDetails</h1></div>
+                            <div className='userTags'>
+                                <h3 className='userQuestionsAnswered' onClick={() => changePageView("questionsAnswered",[tagsCreated])}>Questions Answered</h3><h3 className='userTagsCreated' onClick={() => changePageView("userTagsCreated",[tagsCreated])}>Tags Created</h3>
+                            </div>
                         </td>
                     </tr>
                 </tbody>
@@ -90,7 +91,7 @@ function QuestionElement({questionTitle,question,changePageView}){
     }
 
     return(
-        <p onClick={ () => handleQuestionClick(question)}>{questionTitle}</p>
+        <h4 className='questionTitle' onClick={ () => handleQuestionClick(question)}>{questionTitle}</h4>
     )
 
 }

@@ -313,7 +313,7 @@ table.header{ /* #page_header */
 
 .tag_header{
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
   /*align-self: flex-start;*/
 }
 
@@ -544,9 +544,37 @@ svg:hover{
   border-style: solid;
   margin-left: 50px;
   margin-right: 50px;
+  margin-top: 50px;
+  display: flex;
+  justify-content: space-around;
 
 }
 .userDetailsText{
   text-align: left;
   padding-left: 15px;
+}
+
+.userQuestions{
+  text-align: left;
+  padding-left: 15px;
+  height: 180px;
+  overflow: auto;
+}
+
+.userQuestionsAnswered{
+  display: inline-block;
+  color: royalblue;
+  cursor: pointer;
+}
+
+.userTagsCreated{
+  display: inline-block;
+  color: royalblue;
+  cursor: pointer;
+
+}
+
+.tagOptions{
+  display: flex;
+  justify-content: space-around;
 }

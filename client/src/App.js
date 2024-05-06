@@ -11,6 +11,7 @@ import ViewQuestion from './components/viewquestion.js';
 import SubmitAnswer from './components/submitanswer.js';
 import { UserProfile } from './components/userprofile.js';
 import { EditQuestionPage } from './components/editquestion.js';
+import { UserTagsPage } from './components/usertagspage.js';
 
 import WelcomePage from './components/welcomepage.js'; // ***
 import axios from 'axios';
@@ -27,6 +28,7 @@ function App() {
   const [showQuestionAnswerPage, setshowQuestionAnswerPage] = useState(null)
   const [showSubmitAnswer, setShowSubmitAnswer] = useState(null)
   const [showEditedQuestion, setShowEditedQuestion] = useState(null)
+  const [showTagsCreated, setShowTagsCreated] = useState(null)
 
   const [pageView,setPageview] = useState("welcomePage")
   
@@ -154,6 +156,9 @@ function App() {
     }else if(newPage === "editQuestion"){
       setPageview("editQuestion")
       setShowEditedQuestion(args[0])
+    }else if(newPage === "userTagsCreated"){
+      setPageview("userTagsCreated")
+      setShowTagsCreated(args[0])
     }else{
       setPageview(newPage)
       setshowQuestionAnswerPage(null)
@@ -217,12 +222,19 @@ function App() {
       handleshowQuestionAnswerPage ={handleshowQuestionAnswerPage} registeredState={registeredState} changePageView={changePageView}/>
     </>
     );
+  }else if(pageView === "userTagsCreated"){
+
+    return(
+      <>
+      <FakeStackOverflowTopbar toggleWelcomePage = {handleWelcomePageToggle} toggleQuestionPage = {handleQuestionPageToggle} handleSearchString = {handleSearchString} />
+      <UserTagsPage handleQuestionPageToggle = {handleQuestionPageToggle} handleTagsPageToggle={handleTagsPageToggle} handleTagStateChange={handleTagStateChange} tagsCreated={showTagsCreated}/>
+      </>
+    );
   }else if(pageView === "tagsPage"){
     return (
       <>
       <FakeStackOverflowTopbar toggleWelcomePage = {handleWelcomePageToggle} toggleQuestionPage = {handleQuestionPageToggle} handleSearchString = {handleSearchString} />
       <TagsPage handleQuestionPageToggle = {handleQuestionPageToggle} handleTagsPageToggle={handleTagsPageToggle} handleTagStateChange={handleTagStateChange} />
-
       </>
     )
   }else if(pageView === "submitQuestion"){

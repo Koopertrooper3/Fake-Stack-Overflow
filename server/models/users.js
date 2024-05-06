@@ -24,6 +24,10 @@ const UserModelSchema = new Schema(
             type: Schema.Types.ObjectId,
             ref: 'questionsModel',
         }],
+        questionsAnswered: [{
+            type: Schema.Types.ObjectId,
+            ref: 'questionsModel',
+        }],
         tagsCreated: [{
             type: Schema.Types.ObjectId,
             ref: 'tagsModel',

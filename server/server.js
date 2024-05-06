@@ -408,6 +408,10 @@ app.get('/singlequestion/:questionid', async(req, res) => {
 
 app.delete('/singlequestion/:questionid', async(req,res) =>{
     try {
+
+        if(!req.session.user){
+            throw new Error("User not logged in")
+        }
         let question = await questionsModel.findOne({_id: req.params.questionid}).populate("answers").exec()
 
         for await (const answerElem of question.answers){
@@ -417,30 +421,83 @@ app.delete('/singlequestion/:questionid', async(req,res) =>{
 
             let test = await answerElem.deleteOne({_id: answerElem._id})
         }
-        let res = await question.deleteOne({_id: question._id})
-        if(res === 1){
+        let res = await questionsModel.deleteOne({_id: question._id})
+        if(res){
             console.log("Question Deleted")
         }
+        res.send()
     }catch(error){
         res.status(500).json({ error: 'Internal Server Error' });
     }
 })
 
-app.post('/editQuestion/:questionid', async(req,res) =>{
+app.post('/user/editQuestion/:questionid', async (req, res) => {
+
     try {
-        let question = await questionsModel.findOne({_id: req.params.questionid}).populate("answers").exec()
+        if(!req.session.user){
+            throw new Error("User not logged in")
+        }
+        const { title, summary ,text, tags } = req.body;
 
-        for await (const answerElem of question.answers){
-            for await (const commentElem of answerElem.comments){
-                await commentsModel.deleteOne({_id: commentElem})
+        let authorUser = await UserModel.findOne({email : req.session.user}).exec()
+        questionDetails = {
+            title: title,
+            summary : summary,
+            text: text,
+            tags: [],
+            asked_by: authorUser.id
+        }
+
+        let tagsCreated = []
+        for (const elem of tags){
+            let tag = await TagsModel.find({name: elem}).exec()
+            if(tag.length === 0){
+
+                if(authorUser.reputation >= 50){
+                    let newTag = await tagCreate(elem)
+                    tagsCreated.push(newTag)
+                    questionDetails.tags.push(newTag)
+                }else{
+                    throw new Error("Cannot create Tag");
+                }
+            }else{
+                //console.log("Tag exists!")
+                tag = tag[0]
+                questionDetails.tags.push(tag)
             }
+        }
+        
+        const newQuestion = await new questionsModel(questionDetails);
+        let replacetest = await questionsModel.findOneAndReplace({_id: req.params.questionid}, questionDetails)
+        let test = await UserModel.findOneAndUpdate({email : req.session.user}, {$push: {tagsCreated : {$each : tagsCreated}} }).exec();
+        res.json({success:true});
+    } catch(error) {
+        console.error(error);
+        res.json({success: false , error: error.message})
+    }
+});
 
-            let test = await answerElem.deleteOne({_id: answerElem._id})
+app.delete('/deleteTag/:tagname', async(req,res) =>{
+    try {
+
+        if(!req.session.user){
+            throw new Error("User not logged in")
         }
-        let res = await question.deleteOne({_id: question._id})
-        if(res === 1){
-            console.log("Question Deleted")
+        let tag = await TagsModel.findOne({name: req.params.tagname}).exec()
+        let user = await UserModel.findOne({email: req.session.user, tagsCreated : {$in : [tag._id]}}).exec()
+
+        if(user === null){
+            throw new Error("Current user is not the author")
         }
+        if(tag.refcount > 0){
+            throw new Error("Tag still has questions")
+        }
+
+        let res = await TagsModel.deleteOne({_id: tag._id})
+        if(res){
+            console.log("Tags Deleted")
+        }
+        res.json({success:true})
     }catch(error){
         res.status(500).json({ error: 'Internal Server Error' });
     }
