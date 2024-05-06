@@ -6,15 +6,14 @@ import {dbCountQuestionsPerTag} from '../models/datamethods.js'
 //This is the Tags page,the page that lists all the tags in them model
 
 //This will be used as THE entry point for tags
-export function TagsPage({handleQuestionPageToggle,handleTagsPageToggle,handleTagStateChange}) {
+export function UserTagsPage({handleQuestionPageToggle,handleTagsPageToggle,handleTagStateChange,tagsCreated}) {
     return (
         <div id="main_body" class="main_body"> 
             <table className="main_body">
             <tbody>
                 <tr className="main_body">
                     <FakeStackOverflowSidebar toggleQuestionPage = {handleQuestionPageToggle} handleTagsPageToggle = {handleTagsPageToggle}/>
-                    <TagsMainContent handleTagStateChange={handleTagStateChange}/>
-                   
+                    <TagsMainContent handleTagStateChange={handleTagStateChange} tagsCreated={tagsCreated}/>
                 </tr>
             </tbody>
         </table>
@@ -22,7 +21,7 @@ export function TagsPage({handleQuestionPageToggle,handleTagsPageToggle,handleTa
     );
 }
 
-function TagsMainContent({handleTagStateChange}){
+function TagsMainContent({handleTagStateChange,tagsCreated}){
 
     const [numOfTags, setNumOfTags] = useState(0)
     const [tags,setTags] = useState([]);
@@ -35,29 +34,28 @@ function TagsMainContent({handleTagStateChange}){
     useEffect(()=>{
 
         axios.all([
-            axios.get(`http://localhost:8000/tags`), 
             axios.get(`http://localhost:8000/questions`)
-          ]).then(axios.spread((tags, questions) => {
+          ]).then(axios.spread((questions) => {
 
             let tagElements = []
 
-            tagElements = tags.data.map((value)=>{
+            tagElements = tagsCreated.map((value)=>{
                 let questionsOfTag = dbCountQuestionsPerTag(value.name,questions.data);
                 return <Tag name ={value.name} questionsOfTag = {questionsOfTag.length} handleTagStateChange={handleTagStateChange} 
                 tid={value.tid}/>
             }
             );
 
-            let invisCells = (3 - (tags.data.length % 3))
+            let invisCells = (3 - (tagsCreated.length % 3))
             while(invisCells > 0){
                 tagElements.push(<FalseTag />);
                 invisCells -= 1;
             }
             handleSetTags(tagElements)
-            setNumOfTags(tags.data.length)
+            setNumOfTags(tagsCreated.length)
           }));
 
-    },[handleTagStateChange]);
+    },[handleTagStateChange,tagsCreated]);
 
     return(
         <td>
@@ -88,10 +86,21 @@ function TagsHeader({numOfTags}){
 }
 function Tag({name,questionsOfTag,handleTagStateChange}){
 
+
+    async function modifyTag(tagName,tagModifyType){
+        if(tagModifyType === "edit"){
+
+        }else if(tagModifyType === "delete"){
+            await axios.delete('http://localhost:8000/deleteTag/'+tagName, {withCredentials: true});
+        }
+    }
     return(
         <div class='tag'>
             <p class='taglink' id= {name} onClick={() => handleTagStateChange(name)}><u>{name}</u></p>
             <p>{questionsOfTag} {questionsOfTag > 1 ? "questions" : "question"}</p>
+            <div className='tagOptions'>
+                <p className='questionTitle' onClick={() => modifyTag(name,"edit")}>Edit Tags</p><p className='questionTitle' onClick={() => modifyTag(name, "delete")}>Delete Tags</p>
+            </div>
       </div>
     );
 }

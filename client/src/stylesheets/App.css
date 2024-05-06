@@ -114,7 +114,7 @@ table.header{ /* #page_header */
 
     div.main_body{
         height: 80%;
-        overflow-y: scroll;
+        overflow-y: auto;
     } /* same #main_body */
     table.main_body{
         /* background-color:rgb(255, 88, 88); */
@@ -313,7 +313,7 @@ table.header{ /* #page_header */
 
 .tag_header{
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
   /*align-self: flex-start;*/
 }
 
@@ -523,4 +523,58 @@ svg:hover{
   color: rgb(192, 85, 154);
   font-size: 23px;
   cursor: pointer;
+}
+
+.userDetails{
+  border: 5px;
+  border-style: solid;
+  margin-left: 50px;
+  margin-right: 50px;
+  margin-bottom: 50px;
+
+}
+.userQuestions{
+  border: 5px;
+  border-style: solid;
+  margin-left: 50px;
+  margin-right: 50px;
+
+}.userTags{
+  border: 5px;
+  border-style: solid;
+  margin-left: 50px;
+  margin-right: 50px;
+  margin-top: 50px;
+  display: flex;
+  justify-content: space-around;
+
+}
+.userDetailsText{
+  text-align: left;
+  padding-left: 15px;
+}
+
+.userQuestions{
+  text-align: left;
+  padding-left: 15px;
+  height: 180px;
+  overflow: auto;
+}
+
+.userQuestionsAnswered{
+  display: inline-block;
+  color: royalblue;
+  cursor: pointer;
+}
+
+.userTagsCreated{
+  display: inline-block;
+  color: royalblue;
+  cursor: pointer;
+
+}
+
+.tagOptions{
+  display: flex;
+  justify-content: space-around;
 }

@@ -2,16 +2,19 @@
 // ************** DEFINE YOUR REACT COMPONENTS in ./components directory **************
 import './stylesheets/App.css';
 //import FakeStackOverflow from './components/fakestackoverflow.js'
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {QuestionPage} from './components/questionpagecomponent.js'
 import { FakeStackOverflowTopbar } from './components/globalcomponents.js';
 import { TagsPage } from './components/tagspagecomponent.js';
 import NewQuestionPage from './components/submitquestion.js'
 import ViewQuestion from './components/viewquestion.js';
 import SubmitAnswer from './components/submitanswer.js';
-
+import { UserProfile } from './components/userprofile.js';
+import { EditQuestionPage } from './components/editquestion.js';
+import { UserTagsPage } from './components/usertagspage.js';
 
 import WelcomePage from './components/welcomepage.js'; // ***
+import axios from 'axios';
 //Enter here, use this component to maintain state across the entire website
 //This component will do the branching and switching between pages
 
@@ -24,7 +27,8 @@ function App() {
   //const [showSubmitQuestion, setShowSubmitQuestion] = useState(false);
   const [showQuestionAnswerPage, setshowQuestionAnswerPage] = useState(null)
   const [showSubmitAnswer, setShowSubmitAnswer] = useState(null)
-
+  const [showEditedQuestion, setShowEditedQuestion] = useState(null)
+  const [showTagsCreated, setShowTagsCreated] = useState(null)
 
   const [pageView,setPageview] = useState("welcomePage")
   
@@ -148,6 +152,13 @@ function App() {
     if(newPage === "returnToQuestion"){
       setPageview(null)
       setshowQuestionAnswerPage(args[0])
+
+    }else if(newPage === "editQuestion"){
+      setPageview("editQuestion")
+      setShowEditedQuestion(args[0])
+    }else if(newPage === "userTagsCreated"){
+      setPageview("userTagsCreated")
+      setShowTagsCreated(args[0])
     }else{
       setPageview(newPage)
       setshowQuestionAnswerPage(null)
@@ -161,29 +172,69 @@ function App() {
     setRegisteredState(true)
   }
 
-  if (pageView === "welcomePage"){ // *** 
+  useEffect( ()=>{
+    async function checkCookie(){
+     let response = await axios.get(`http://localhost:8000/user/probecookie`,{withCredentials: true})
+
+     if(response.data.cookie){
+      setRegisteredState(true)
+      if(pageView === 'welcomePage'){
+        changePageView("homePage")
+      }
+     }else{
+      setRegisteredState(false)
+     }
+    }
+
+    checkCookie()
+  },)
+
+
+  if (pageView === "welcomePage" && registeredState === false){ // *** 
     return (
       <>
       <FakeStackOverflowTopbar  toggleWelcomePage = {handleWelcomePageToggle} toggleQuestionPage = {handleQuestionPageToggle} handleSearchString = {handleSearchString} />
       <WelcomePage  toggleQuestionPage = {handleQuestionPageToggle} handleLogIn= {handleLogIn}/>
       </>
     );
-  }
-  else if(pageView === "homePage"){
+  }else if(pageView === "userProfile"){
+
+    return(
+      <>
+      <FakeStackOverflowTopbar toggleWelcomePage = {handleWelcomePageToggle} toggleQuestionPage = {handleQuestionPageToggle} handleSearchString = {handleSearchString} />
+      <UserProfile handleQuestionPageToggle = {handleQuestionPageToggle} handleTagsPageToggle={handleTagsPageToggle} changePageView ={changePageView}/>
+      </>
+    )
+  }else if(pageView === "editQuestion"){
+    return(
+      <>
+        <FakeStackOverflowTopbar toggleWelcomePage = {handleWelcomePageToggle} toggleQuestionPage = {handleQuestionPageToggle} handleSearchString = {handleSearchString} />
+        <EditQuestionPage handleQuestionPageToggle = {handleQuestionPageToggle} handleTagsPageToggle={handleTagsPageToggle} changePageView ={changePageView}
+        subjectQuestion = {showEditedQuestion}/>
+      </>
+    )
+  }else if(pageView === "homePage"){
     return (
     <>
       <FakeStackOverflowTopbar toggleWelcomePage = {handleWelcomePageToggle} toggleQuestionPage = {handleQuestionPageToggle} handleSearchString = {handleSearchString} />
       <QuestionPage searchString={searchString} questionFilter = {questionFilter} setFilterHandler={setFilterHandler}
       toggleQuestionPage = {handleQuestionPageToggle} handleTagsPageToggle={handleTagsPageToggle} tagState={tagState} handleSubmitQuestionPageToggle={handleSubmitQuestionPageToggle}
-      handleshowQuestionAnswerPage ={handleshowQuestionAnswerPage} registeredState={registeredState} />
+      handleshowQuestionAnswerPage ={handleshowQuestionAnswerPage} registeredState={registeredState} changePageView={changePageView}/>
     </>
+    );
+  }else if(pageView === "userTagsCreated"){
+
+    return(
+      <>
+      <FakeStackOverflowTopbar toggleWelcomePage = {handleWelcomePageToggle} toggleQuestionPage = {handleQuestionPageToggle} handleSearchString = {handleSearchString} />
+      <UserTagsPage handleQuestionPageToggle = {handleQuestionPageToggle} handleTagsPageToggle={handleTagsPageToggle} handleTagStateChange={handleTagStateChange} tagsCreated={showTagsCreated}/>
+      </>
     );
   }else if(pageView === "tagsPage"){
     return (
       <>
       <FakeStackOverflowTopbar toggleWelcomePage = {handleWelcomePageToggle} toggleQuestionPage = {handleQuestionPageToggle} handleSearchString = {handleSearchString} />
       <TagsPage handleQuestionPageToggle = {handleQuestionPageToggle} handleTagsPageToggle={handleTagsPageToggle} handleTagStateChange={handleTagStateChange} />
-
       </>
     )
   }else if(pageView === "submitQuestion"){

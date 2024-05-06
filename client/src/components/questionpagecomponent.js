@@ -8,11 +8,11 @@ import { dbCountQuestionsPerTag, dbGetAndSearchQuestions, dbGetAndFilterQuestion
 //considered the homepage of the website
 
 //This will be used as the homepage/questions page
-export function QuestionPage({model,searchString, questionFilter,setFilterHandler,toggleQuestionPage,handleTagsPageToggle,tagState,handleSubmitQuestionPageToggle,handleshowQuestionAnswerPage,registeredState}) {
+export function QuestionPage({model,searchString, questionFilter,setFilterHandler,toggleQuestionPage,handleTagsPageToggle,tagState,handleSubmitQuestionPageToggle,handleshowQuestionAnswerPage,registeredState,changePageView}) {
     return (
         <QuestionContent model={model} searchString={searchString} questionFilter = {questionFilter} setFilterHandler={setFilterHandler} 
         toggleQuestionPage = {toggleQuestionPage} handleTagsPageToggle={handleTagsPageToggle} tagState={tagState} handleSubmitQuestionPageToggle={handleSubmitQuestionPageToggle}
-        handleshowQuestionAnswerPage={handleshowQuestionAnswerPage} registeredState={registeredState}/>
+        handleshowQuestionAnswerPage={handleshowQuestionAnswerPage} registeredState={registeredState} changePageView={changePageView}/>
     );
 }
 
@@ -24,7 +24,7 @@ class QuestionContent extends React.Component{
             <table className="main_body">
                 <tbody>
                     <tr className="main_body">
-                        <FakeStackOverflowSidebar toggleQuestionPage = {this.props.toggleQuestionPage} handleTagsPageToggle = {this.props.handleTagsPageToggle}/>
+                        <FakeStackOverflowSidebar toggleQuestionPage = {this.props.toggleQuestionPage} handleTagsPageToggle = {this.props.handleTagsPageToggle} registeredState={this.props.registeredState} changePageView={this.props.changePageView}/>
                         <QuestionMainContent model={this.props.model} searchString ={this.props.searchString}
                         questionFilter = {this.props.questionFilter} setFilterHandler={this.props.setFilterHandler} tagState={this.props.tagState} 
                         handleshowQuestionAnswerPage={this.props.handleshowQuestionAnswerPage} handleSubmitQuestionPageToggle = {this.props.handleSubmitQuestionPageToggle}
@@ -184,7 +184,7 @@ function QuestionElement({ question, tags, date, handleshowQuestionAnswerPage,re
 
     const handleUpvote = async () => {
         try {
-            const response = await axios.post('http://localhost:8000/incrementVotes', { question });
+            const response = await axios.post('http://localhost:8000/incrementVotes', { question },{withCredentials: true});
             if (response.status === 200) {
                 // Update the question's votes directly from the server response
                 question.votes += 1;
@@ -198,7 +198,7 @@ function QuestionElement({ question, tags, date, handleshowQuestionAnswerPage,re
 
     const handleDownvote = async () => {
         try {
-            const response = await axios.post('http://localhost:8000/decrementVotes', { question });
+            const response = await axios.post('http://localhost:8000/decrementVotes', { question },{withCredentials: true});
             if (response.status === 200) {
                 // Update the question's votes directly from the server response
                 question.votes -= 1;
