@@ -533,13 +533,7 @@ svg:hover{
   margin-bottom: 50px;
 
 }
-.userQuestions{
-  border: 5px;
-  border-style: solid;
-  margin-left: 50px;
-  margin-right: 50px;
-
-}.userTags{
+.userTags{
   border: 5px;
   border-style: solid;
   margin-left: 50px;
@@ -559,6 +553,10 @@ svg:hover{
   padding-left: 15px;
   height: 180px;
   overflow: auto;
+  border: 5px;
+  border-style: solid;
+  margin-left: 50px;
+  margin-right: 50px;
 }
 
 .userQuestionsAnswered{
@@ -577,4 +575,32 @@ svg:hover{
 .tagOptions{
   display: flex;
   justify-content: space-around;
+}
+
+.userElement{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px;
+  border-style: solid;
+  margin: 3px;
+}
+
+.userList{
+  text-align: left;
+  padding-left: 15px;
+  height: 300px;
+  overflow: auto;
+  border: 5px;
+  border-style: solid;
+  margin-left: 50px;
+  margin-right: 50px;
+}
+
+.deleteBox{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  grid-column-gap: 10px
+
 }

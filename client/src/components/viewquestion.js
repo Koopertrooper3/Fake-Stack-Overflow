@@ -14,7 +14,6 @@ function ViewQuestion({ question, handleQuestionPageToggle, handleTagsPageToggle
     const [startAIndex, setStartAIndex] = useState(0);
     const [endAIndex, setEndAIndex] = useState(2);
     
-
     useEffect(() => {
         let answerElems = [];
         question.answers.slice(startAIndex, endAIndex).forEach((answer) => {
@@ -86,9 +85,9 @@ function ViewQuestion({ question, handleQuestionPageToggle, handleTagsPageToggle
         <div className='main_body'>
             <table className='main_body'>
                 <tbody>
-                    <tr className='main_body'>
-
-                        <FakeStackOverflowSidebar toggleQuestionPage={handleQuestionPageToggle} handleTagsPageToggle={handleTagsPageToggle} />
+                    <tr className='main_body'>                   
+                        <FakeStackOverflowSidebar toggleQuestionPage = {handleQuestionPageToggle} handleTagsPageToggle = {handleTagsPageToggle} registeredState={registeredState}
+                        changePageView={changePageView}/>
                         <td id='main_content' className='main_content'>
                             <div>
                                 <QuestionElement question={question} handleSubmitQuestionPageToggle={handleSubmitQuestionPageToggle} registeredState={registeredState} />

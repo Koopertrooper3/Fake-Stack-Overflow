@@ -58,12 +58,15 @@ export function dbGetAndSearchQuestions(searchString, questions, tags){
       })
     })
 
-    return results
+    return Array.from(results)
 }
 
 export function dbGetAndFilterQuestions(sortingMethod,questions){
   if(sortingMethod === "newest"){
-    return questions.sort((a,b) => b.askDate - a.askDate);
+    return questions.sort((a,b) => {
+      let aDate = new Date(a.ask_date_time)
+      let bDate = new Date(b.ask_date_time)
+      return bDate - aDate});
     
   }else if(sortingMethod === "active"){
     

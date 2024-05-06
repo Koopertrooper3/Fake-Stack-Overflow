@@ -2,13 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { FakeStackOverflowSidebar } from './globalcomponents';
 import axios from 'axios';
 
-export function EditQuestionPage({handleQuestionPageToggle,handleTagsPageToggle,changePageView,subjectQuestion}){
+export function EditQuestionPage({handleQuestionPageToggle,handleTagsPageToggle,changePageView,subjectQuestion,registeredState}){
     return(
         <div id='main_body' className='main_body'>
             <table className='main_body'>
                 <tbody>
                     <tr className='main_body'>
-                        <FakeStackOverflowSidebar toggleQuestionPage = {handleQuestionPageToggle} handleTagsPageToggle = {handleTagsPageToggle}/>
+                        <FakeStackOverflowSidebar toggleQuestionPage = {handleQuestionPageToggle} handleTagsPageToggle = {handleTagsPageToggle} registeredState={registeredState}/>
                         <EditQuestionForm subjectQuestion = {subjectQuestion} handleQuestionPageToggle={handleQuestionPageToggle} changePageView={changePageView}/>
                     </tr>
                 </tbody>
@@ -132,27 +132,36 @@ function EditQuestionForm({subjectQuestion,handleQuestionPageToggle,changePageVi
     };
 
 
-    async function deleteQuestion(){
-        await axios.delete('http://localhost:8000/singleQuestion/'+subjectQuestion._id,{withCredentials: true})
-        changePageView("userProfile",[])
+    function deleteQuestion(){
+        axios.delete('http://localhost:8000/singleQuestion/'+subjectQuestion._id,{withCredentials: true}).then(()=>{
+            alert("Question successfully deleted!")
+            changePageView("userProfile",[])
+        }).catch((err)=>{
+            alert(err.message)
+        })
+        
     }
 
     useEffect(()=>{
         //Unroll the tag string
         async function unrollTagString(){
 
-            let response = await axios.get('http://localhost:8000/singleQuestion/'+subjectQuestion._id)
-            let question = response.data.question
-            let finalTagString = question.tags.reduce((tagstring, elem)=>{
-    
-                return tagstring += elem.name + " "
-    
-            },"")
+            try{
+                let response = await axios.get('http://localhost:8000/singleQuestion/'+subjectQuestion._id)
+                let question = response.data.question
+                let finalTagString = question.tags.reduce((tagstring, elem)=>{
+        
+                    return tagstring += elem.name + " "
+        
+                },"")
 
-            setQuestionData((prevData) => {
-                const newData = { ...prevData, edit_tags: finalTagString };
-                return newData;
-            });
+                setQuestionData((prevData) => {
+                    const newData = { ...prevData, edit_tags: finalTagString };
+                    return newData;
+                });
+            }catch(err){
+                alert(err.response.data.error)  
+            }
         }
 
         unrollTagString()

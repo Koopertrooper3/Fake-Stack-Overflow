@@ -66,10 +66,11 @@ function QuestionMainContent({model, searchString, questionFilter, setFilterHand
                 questions = dbGetAndSearchQuestions(searchString,questions,tags);
                 console.log("searchstring");
 
-            }else{
-                questions = dbGetAndFilterQuestions(questionFilter,questions);
-                console.log("filter")
             }
+            
+            questions = dbGetAndFilterQuestions(questionFilter,questions);
+            console.log("filter")
+            
 
             let questionElements = [];
             questions.forEach(element => {

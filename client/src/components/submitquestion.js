@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { FakeStackOverflowSidebar } from './globalcomponents';
 import axios from 'axios';
 
-function NewQuestionPage({handleQuestionPageToggle,handleTagsPageToggle,changePageView}){
+function NewQuestionPage({handleQuestionPageToggle,handleTagsPageToggle,changePageView,registeredState}){
     return(
         <div id='main_body' className='main_body'>
             <table className='main_body'>
                 <tbody>
                     <tr className='main_body'>
-                        <FakeStackOverflowSidebar toggleQuestionPage = {handleQuestionPageToggle} handleTagsPageToggle = {handleTagsPageToggle}/>
+                        <FakeStackOverflowSidebar toggleQuestionPage = {handleQuestionPageToggle} handleTagsPageToggle = {handleTagsPageToggle} registeredState={registeredState}
+                        changePageView={changePageView}/>
                         <NewQuestionForm handleQuestionPageToggle={handleQuestionPageToggle} changePageView={changePageView}/>
                     </tr>
                 </tbody>
