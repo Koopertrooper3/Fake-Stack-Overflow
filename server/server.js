@@ -19,6 +19,8 @@ const UserModel = require('./models/users');
 const questionsModel = require('./models/questions');
 const commentsModel = require('./models/comments');
 
+
+
 app.use(cors({
     origin: "http://localhost:3000",
     credentials: true,
@@ -510,4 +512,51 @@ app.delete('/deleteTag/:tagname', async(req,res) =>{
 
 app.listen(port, ()=> {
     console.log(`Server running on port ${port}`);
+});
+
+
+
+// For comments:
+
+app.post('/addComment', async (req, res) => {
+    try {
+        if(!req.session.user){
+            throw new Error("User not logged in")
+        }
+        const { questionId, text } = req.body;
+        let authorUser = await UserModel.findOne({email : req.session.user}).exec()
+        const newComment = new commentsModel({
+            question: questionId,
+            text: text,
+            comment_by: authorUser
+        });
+        await newComment.save();
+
+        await questionsModel.findByIdAndUpdate(questionId, { $push: { comments: newComment._id } });
+
+
+        res.json({ success: true, message: 'Comment added successfully' });
+    } catch (error) {
+        console.error('Error adding comment:', error);
+        res.status(500).json({ success: false, error: 'Internal Server Error' });
+    }
+});
+
+app.get('/comments/:questionId', async (req, res) => {
+    try {
+        const questionId = req.params.questionId;
+        const question = await questionsModel.findById(questionId).populate({
+            path: 'comments',
+            populate: {
+                path: 'comment_by',
+                select: 'username' 
+            }
+        }).exec();
+        const comments = question.comments;
+
+        res.json({ success: true, comments: comments });
+    } catch (error) {
+        console.error('Error fetching comments:', error);
+        res.status(500).json({ success: false, error: 'Internal Server Error' });
+    }
 });
