@@ -12,6 +12,8 @@ import SubmitAnswer from './components/submitanswer.js';
 import { UserProfile } from './components/userprofile.js';
 import { EditQuestionPage } from './components/editquestion.js';
 import { UserTagsPage } from './components/usertagspage.js';
+import { AdminProfile } from './components/adminprofile.js';
+import { AdminUserProfile } from './components/adminuserprofile.js';
 
 import WelcomePage from './components/welcomepage.js'; // ***
 import axios from 'axios';
@@ -37,6 +39,8 @@ function App() {
   const [tagState, setTagState] = useState("");
 
   const [registeredState, setRegisteredState] = useState(false)
+  const [adminState, setAdminState] = useState(false)
+  const [adminViewUser, setAdminViewUser] = useState(null)
 
   const handleQuestionPageToggle = () => {
 
@@ -152,17 +156,25 @@ function App() {
     }else if(newPage === "userTagsCreated"){
       setPageview("userTagsCreated")
       setShowTagsCreated(args[0])
+      
+    }else if(newPage === "adminViewUser"){
+      setPageview("userProfile")
+      setAdminViewUser(args[0])
     }else{
       setPageview(newPage)
       setshowQuestionAnswerPage(null)
       setShowSubmitAnswer(null)
+      setAdminViewUser(null)
     }
     
   }
 
   //Handle logging in as a registered user
-  const handleLogIn = () =>{
+  const handleLogIn = (role) =>{
     setRegisteredState(true)
+    if(role === "admin"){
+      setAdminState(true)
+    }
   }
 
   useEffect( ()=>{
@@ -174,13 +186,17 @@ function App() {
       if(pageView === 'welcomePage'){
         changePageView("homePage")
       }
+
+      if(response.data.role === "admin"){
+        setAdminState(true)
+      }
      }else{
       setRegisteredState(false)
      }
     }
 
     checkCookie()
-  },)
+  },[pageView])
 
 
   if (pageView === "welcomePage" && registeredState === false){ // *** 
@@ -192,12 +208,30 @@ function App() {
     );
   }else if(pageView === "userProfile"){
 
-    return(
-      <>
-      <FakeStackOverflowTopbar toggleWelcomePage = {handleWelcomePageToggle} toggleQuestionPage = {handleQuestionPageToggle} handleSearchString = {handleSearchString} />
-      <UserProfile handleQuestionPageToggle = {handleQuestionPageToggle} handleTagsPageToggle={handleTagsPageToggle} registeredState= {registeredState} changePageView ={changePageView}/>
-      </>
-    )
+    if(adminState && adminViewUser){
+      return(
+        <>
+        <FakeStackOverflowTopbar toggleWelcomePage = {handleWelcomePageToggle} toggleQuestionPage = {handleQuestionPageToggle} handleSearchString = {handleSearchString} />
+        <AdminUserProfile handleQuestionPageToggle = {handleQuestionPageToggle} handleTagsPageToggle={handleTagsPageToggle} registeredState= {registeredState} changePageView ={changePageView}
+        userid = {adminViewUser}/>
+        </>
+      )
+    }else if(adminState){
+      return(
+        <>
+        <FakeStackOverflowTopbar toggleWelcomePage = {handleWelcomePageToggle} toggleQuestionPage = {handleQuestionPageToggle} handleSearchString = {handleSearchString} />
+        <AdminProfile handleQuestionPageToggle = {handleQuestionPageToggle} handleTagsPageToggle={handleTagsPageToggle} registeredState= {registeredState} changePageView ={changePageView}/>
+        </>
+      )
+    }else{
+      return(
+        <>
+        <FakeStackOverflowTopbar toggleWelcomePage = {handleWelcomePageToggle} toggleQuestionPage = {handleQuestionPageToggle} handleSearchString = {handleSearchString} />
+        <UserProfile handleQuestionPageToggle = {handleQuestionPageToggle} handleTagsPageToggle={handleTagsPageToggle} registeredState= {registeredState} changePageView ={changePageView}/>
+        </>
+      )
+    }
+    
   }else if(pageView === "editQuestion"){
     return(
       <>
@@ -221,7 +255,7 @@ function App() {
       <>
       <FakeStackOverflowTopbar toggleWelcomePage = {handleWelcomePageToggle} toggleQuestionPage = {handleQuestionPageToggle} handleSearchString = {handleSearchString} />
       <UserTagsPage handleQuestionPageToggle = {handleQuestionPageToggle} handleTagsPageToggle={handleTagsPageToggle} handleTagStateChange={handleTagStateChange} 
-      tagsCreated={showTagsCreated} registeredState={registeredState}/>
+      tagsCreated={showTagsCreated} registeredState={registeredState} changePageView={changePageView}/>
       </>
     );
   }else if(pageView === "tagsPage"){
@@ -229,7 +263,7 @@ function App() {
       <>
       <FakeStackOverflowTopbar toggleWelcomePage = {handleWelcomePageToggle} toggleQuestionPage = {handleQuestionPageToggle} handleSearchString = {handleSearchString} />
       <TagsPage handleQuestionPageToggle = {handleQuestionPageToggle} handleTagsPageToggle={handleTagsPageToggle} handleTagStateChange={handleTagStateChange} 
-      registeredState={registeredState}/>
+      registeredState={registeredState} changePageView={changePageView}/>
       </>
     )
   }else if(pageView === "submitQuestion"){
@@ -250,7 +284,8 @@ function App() {
       <>
         <FakeStackOverflowTopbar toggleWelcomePage = {handleWelcomePageToggle} toggleQuestionPage = {handleQuestionPageToggle} handleSearchString = {handleSearchString} />
         <ViewQuestion question ={showQuestionAnswerPage} handleQuestionPageToggle={handleQuestionPageToggle} handleTagsPageToggle={handleTagsPageToggle}
-        handleSubmitQuestionPageToggle={handleSubmitQuestionPageToggle} handleShowSubmitAnswerPage={handleShowSubmitAnswerPage} registeredState={registeredState} />
+        handleSubmitQuestionPageToggle={handleSubmitQuestionPageToggle} handleShowSubmitAnswerPage={handleShowSubmitAnswerPage} registeredState={registeredState} 
+        changePageView={changePageView}/>
 
       </>
     );

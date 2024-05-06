@@ -3,7 +3,7 @@ import '../stylesheets/App.css';
 import {FakeStackOverflowSidebar } from './globalcomponents.js';
 import axios from 'axios';
 
-export function UserProfile({handleQuestionPageToggle,handleTagsPageToggle,registeredState,changePageView}) {
+export function AdminUserProfile({handleQuestionPageToggle,handleTagsPageToggle,registeredState,changePageView,userid}) {
 
     const [userName, setUsername] = useState("")
     const [userReputation,setUserReputation] = useState(50)
@@ -13,7 +13,9 @@ export function UserProfile({handleQuestionPageToggle,handleTagsPageToggle,regis
     useEffect(() =>{
  
         async function retriveUser(){
-            const response = await axios.get('http://localhost:8000/user/userinfo', {withCredentials: true});
+
+            try{
+                const response = await axios.get('http://localhost:8000/admin/userinfo/'+userid, {withCredentials: true});
             let thisuser = response.data.user
             setUsername(thisuser.username)
             setUserReputation(thisuser.reputation)
@@ -26,6 +28,9 @@ export function UserProfile({handleQuestionPageToggle,handleTagsPageToggle,regis
                 day: "numeric",
               };
             setJoinedByDate( new Date(thisuser.joinedDate).toLocaleDateString("en-US",options) );
+            }catch(err){
+                alert(err.response.data.error)  
+            }
         }
         
         retriveUser()

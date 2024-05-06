@@ -32,7 +32,7 @@ const LoginForm = ({ toggleQuestionPage,handleLogIn }) => {
             if (response.data.success) {
                 console.log('succsess loging in'); // need to redirect to the questions page
                 //alert('success!');
-                handleLogIn()
+                handleLogIn(response.data.role)
                 toggleQuestionPage(); // Toggle to question page
                 
             }else {
@@ -40,7 +40,7 @@ const LoginForm = ({ toggleQuestionPage,handleLogIn }) => {
             }
         } catch (error) {
             console.error('Error logging in', error);
-            alert('Email or password incorrect. Please try again.');
+            setErrorMessage(error.errorMessage);
         }
     };
 

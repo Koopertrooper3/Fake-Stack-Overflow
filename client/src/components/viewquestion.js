@@ -7,7 +7,7 @@ import axios from 'axios';
 
 
 
-function ViewQuestion({question, handleQuestionPageToggle, handleTagsPageToggle, handleSubmitQuestionPageToggle,handleShowSubmitAnswerPage,registeredState}) {
+function ViewQuestion({question, handleQuestionPageToggle, handleTagsPageToggle, handleSubmitQuestionPageToggle,handleShowSubmitAnswerPage,registeredState,changePageView}) {
 
     
     const [answers,setAnswers] = useState([])
@@ -27,7 +27,8 @@ function ViewQuestion({question, handleQuestionPageToggle, handleTagsPageToggle,
                 <tbody>
                     <tr className='main_body'>
                         
-                        <FakeStackOverflowSidebar toggleQuestionPage = {handleQuestionPageToggle} handleTagsPageToggle = {handleTagsPageToggle} registeredState={registeredState}/>
+                        <FakeStackOverflowSidebar toggleQuestionPage = {handleQuestionPageToggle} handleTagsPageToggle = {handleTagsPageToggle} registeredState={registeredState}
+                        changePageView={changePageView}/>
                         <td id='main_content' className='main_content'>
                             <div>
                                 <QuestionElement question={question} handleSubmitQuestionPageToggle={handleSubmitQuestionPageToggle} registeredState={registeredState}/>

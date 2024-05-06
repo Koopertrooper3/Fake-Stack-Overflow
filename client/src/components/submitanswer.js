@@ -11,7 +11,8 @@ class SubmitAnswer extends React.Component {
         <table className='main_body'>
           <tbody>
             <tr className='main_body'>
-              <FakeStackOverflowSidebar toggleQuestionPage={this.props.toggleQuestionPage} handleTagsPageToggle={this.props.handleTagsPageToggle} />
+              <FakeStackOverflowSidebar toggleQuestionPage={this.props.toggleQuestionPage} handleTagsPageToggle={this.props.handleTagsPageToggle}
+              registeredState={this.props.registeredState} changePageView={this.props.changePageView} />
               <SubmitAnswerForm question={this.props.question} toggleQuestionPage={this.props.toggleQuestionPage} changePageView={this.props.changePageView}
               registeredState={this.props.registeredState}/>
             </tr>

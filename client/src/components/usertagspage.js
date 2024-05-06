@@ -6,14 +6,14 @@ import {dbCountQuestionsPerTag} from '../models/datamethods.js'
 //This is the Tags page,the page that lists all the tags in them model
 
 //This will be used as THE entry point for tags
-export function UserTagsPage({handleQuestionPageToggle,handleTagsPageToggle,handleTagStateChange,tagsCreated,registeredState}) {
+export function  UserTagsPage({handleQuestionPageToggle,handleTagsPageToggle,handleTagStateChange,tagsCreated,registeredState,changePageView}) {
     return (
         <div id="main_body" class="main_body"> 
             <table className="main_body">
             <tbody>
                 <tr className="main_body">
-                    <FakeStackOverflowSidebar toggleQuestionPage = {handleQuestionPageToggle} handleTagsPageToggle = {handleTagsPageToggle} registeredState={registeredState}/>
-                    <TagsMainContent handleTagStateChange={handleTagStateChange} tagsCreated={tagsCreated}/>
+                    <FakeStackOverflowSidebar toggleQuestionPage = {handleQuestionPageToggle} handleTagsPageToggle = {handleTagsPageToggle} registeredState={registeredState} changePageView={changePageView}/>
+                    <TagsMainContent handleTagStateChange={handleTagStateChange} tagsCreated={tagsCreated} changePageView={changePageView}/>
                 </tr>
             </tbody>
         </table>
@@ -21,7 +21,7 @@ export function UserTagsPage({handleQuestionPageToggle,handleTagsPageToggle,hand
     );
 }
 
-function TagsMainContent({handleTagStateChange,tagsCreated}){
+function TagsMainContent({handleTagStateChange,tagsCreated,changePageView}){
 
     const [numOfTags, setNumOfTags] = useState(0)
     const [tags,setTags] = useState([]);
@@ -42,7 +42,7 @@ function TagsMainContent({handleTagStateChange,tagsCreated}){
             tagElements = tagsCreated.map((value)=>{
                 let questionsOfTag = dbCountQuestionsPerTag(value.name,questions.data);
                 return <Tag name ={value.name} questionsOfTag = {questionsOfTag.length} handleTagStateChange={handleTagStateChange} 
-                tid={value.tid}/>
+                tid={value.tid} changePageView={changePageView} tagsCreated={tagsCreated}/>
             }
             );
 
@@ -55,7 +55,7 @@ function TagsMainContent({handleTagStateChange,tagsCreated}){
             setNumOfTags(tagsCreated.length)
           }));
 
-    },[handleTagStateChange,tagsCreated]);
+    },[handleTagStateChange,tagsCreated,changePageView]);
 
     return(
         <td>
@@ -84,25 +84,80 @@ function TagsHeader({numOfTags}){
     </div>
     )
 }
-function Tag({name,questionsOfTag,handleTagStateChange}){
+function Tag({name,questionsOfTag,handleTagStateChange,changePageView}){
 
+    const [editTagMode, setEditTagMode] = useState(false)
 
-    async function modifyTag(tagName,tagModifyType){
-        if(tagModifyType === "edit"){
+    const [tagString, setTagString] = useState(name)
 
-        }else if(tagModifyType === "delete"){
-            await axios.delete('http://localhost:8000/deleteTag/'+tagName, {withCredentials: true});
+    const handleInputChange = (event) => {
+        const {value } = event.target;
+        setTagString(value)
+    };
+
+    async function executeDelete(tagname){
+        try{
+            await axios.delete('http://localhost:8000/deleteTag/'+tagname, {withCredentials: true});
+            alert("Tag Succesfully Deleted")
+            changePageView("userProfile",[])
+        }catch(err){
+            alert(err.response.data.error)  
         }
     }
-    return(
-        <div class='tag'>
-            <p class='taglink' id= {name} onClick={() => handleTagStateChange(name)}><u>{name}</u></p>
-            <p>{questionsOfTag} {questionsOfTag > 1 ? "questions" : "question"}</p>
-            <div className='tagOptions'>
-                <p className='questionTitle' onClick={() => modifyTag(name,"edit")}>Edit Tags</p><p className='questionTitle' onClick={() => modifyTag(name, "delete")}>Delete Tags</p>
+
+    function modifyTag(tagName,tagModifyType){
+        if(tagModifyType === "edit"){
+            setEditTagMode(true)
+        }else if(tagModifyType === "delete"){
+            executeDelete(tagName)
+        }
+    }
+
+    function backoffedit(){
+        setEditTagMode(false)
+    }
+
+    async function executeEditTag(){
+        let newstring = tagString.trim()
+        newstring = newstring.toLowerCase()
+
+        if(newstring.length === 0){
+            alert("ERROR: Tag field empty")
+            return
+        }
+        if(/\s/.test(newstring)){
+            alert("ERROR: String in Space")
+            return
+        }
+
+        try{
+            await axios.post('http://localhost:8000/user/editTag/'+name,{newname : newstring},{withCredentials:true})
+        }catch(err){
+            alert(err.response.data.error)
+            return
+        }
+
+        changePageView("userProfile",[])
+    }
+    if(editTagMode){
+        return(
+            <div class='tag'>
+                <input type='text' id='new_title' maxLength='100' value={tagString} onChange={handleInputChange} required />
+                <br/>
+                <button onClick={executeEditTag}>Edit Tag</button><button onClick={backoffedit}>Cancel</button>
             </div>
-      </div>
-    );
+        );
+    }else{
+        return(
+            <div class='tag'>
+                <p class='taglink' id= {name} onClick={() => handleTagStateChange(name)}><u>{name}</u></p>
+                <p>{questionsOfTag} {questionsOfTag !== 1 ? "questions" : "question"}</p>
+                <div className='tagOptions'>
+                    <p className='questionTitle' onClick={() => modifyTag(name,"edit")}>Edit Tags</p><p className='questionTitle' onClick={() => modifyTag(name, "delete")}>Delete Tags</p>
+                </div>
+          </div>
+        );
+    }
 }
 
 function FalseTag(){

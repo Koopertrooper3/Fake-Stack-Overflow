@@ -8,7 +8,8 @@ function NewQuestionPage({handleQuestionPageToggle,handleTagsPageToggle,changePa
             <table className='main_body'>
                 <tbody>
                     <tr className='main_body'>
-                        <FakeStackOverflowSidebar toggleQuestionPage = {handleQuestionPageToggle} handleTagsPageToggle = {handleTagsPageToggle} registeredState={registeredState}/>
+                        <FakeStackOverflowSidebar toggleQuestionPage = {handleQuestionPageToggle} handleTagsPageToggle = {handleTagsPageToggle} registeredState={registeredState}
+                        changePageView={changePageView}/>
                         <NewQuestionForm handleQuestionPageToggle={handleQuestionPageToggle} changePageView={changePageView}/>
                     </tr>
                 </tbody>

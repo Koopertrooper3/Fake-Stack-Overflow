@@ -53,8 +53,11 @@ db.once('open', () => {
 
 const saltRounds = 10;
 
-const isAdmin = (req, res, next) => {
-    if (req.session.user === 'admin') {
+const isAdmin = async (req, res, next) => {
+
+    let admin = await UserModel.findOne({email: req.session.user})
+
+    if (admin.role === 'admin') {
         next();
     }
     else {
@@ -66,6 +69,16 @@ app.get('/admin/dashboard', isAdmin, (req, res) => {
     //Add admin dashboard
 });
 
+app.get('/admin/admininfo',isAdmin, async(req, res) => {
+    console.log(req.session.user)
+    try {
+        let user = await UserModel.findOne({email: req.session.user}).exec()
+        res.json({user})
+    }catch(error){
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+})
+
 app.delete('/admin/users/:userId', isAdmin, async (req, res) => {
     const userId = req.params.userId;
 
@@ -75,7 +88,7 @@ app.delete('/admin/users/:userId', isAdmin, async (req, res) => {
     }
     catch (error) {
         console.error('Error deleting user:', error);
-        res.status(500).json({ success: false, message: 'Internal Server Error' });
+        res.status(400).json({error: 'Internal Server Error' });
     }
 });
 
@@ -148,6 +161,10 @@ app.post('/submitAnswer', async (req, res) => {
         const { questionid, answer_text} = req.body;
         let ansUser = await UserModel.findOne({email: req.session.user})
         let newAnswer = await answerCreate(answer_text, ansUser)
+
+        ansUser.questionsAnswered.push(newAnswer)
+        await ansUser.save()
+        console.log(ansUser)
         await questionsModel.findOneAndUpdate({_id: questionid}, {$push: { answers: newAnswer }}).exec();
         let updatedQuestion = await questionsModel.findOne({_id: questionid}).populate({path : 'answers',populate : {path : 'ans_by'}}).populate('tags').populate('asked_by');
         res.json({success: true , updatedQuestion: updatedQuestion})
@@ -209,17 +226,6 @@ function answerCreate(text, ans_by) {
 
 // LOGIN: 
 
-/* app.get('/login', async (req, res) => {
-    res.send(`<html><body>
-      <h1>Login</h1>
-        <form action="/login" method="POST">
-          <input type="text" name="name" placeholder="Your name"><br>
-          <input type="password" name="pw" placeholder="Enter a password"><br>
-          <button>Login</button>
-        </form>
-      </body></html>`);
-}); */
-
 app.post('/login', async (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
@@ -232,7 +238,7 @@ app.post('/login', async (req, res) => {
         console.log("VERDICT:", verdict);
         if (verdict) {
             req.session.user = email.trim(); //This line builds sessions
-            res.json({ success: true, message: 'login successful' });
+            res.json({ success: true, message: 'login successful', role : user.role});
         }
         else {
             return res.json({ success: false, errorMessage: "Wrong password"});
@@ -289,7 +295,7 @@ app.post('/logout', (req, res) => {
 
 app.get('/users', async (req, res) => {
     try {
-        const tags = await UserModel.find()
+        const users = await UserModel.find()
         res.json(users);
     } catch (error) {
         console.error(error);
@@ -376,9 +382,11 @@ try {
 
 app.get('/user/probecookie', async(req, res) => {
     console.log(req.session.user)
+    
     try {
-        if(req.session.user){
-            res.json({cookie:true})
+        let user = await UserModel.findOne({email: req.session.user}).exec()
+        if(user){
+            res.json({cookie:true, role: user.role})
         }else{
             res.json({cookie:false})
         }
@@ -391,6 +399,17 @@ app.get('/user/userinfo', async(req, res) => {
     console.log(req.session.user)
     try {
         let user = await UserModel.findOne({email: req.session.user}).populate("questionsAsked").populate("tagsCreated").exec()
+        res.json({user})
+    }catch(error){
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+})
+
+//Get userinfo for a specific user, for admins
+app.get('/admin/userinfo/:userid', async(req, res) => {
+    console.log(req.session.user)
+    try {
+        let user = await UserModel.findOne({_id: req.params.userid}).populate("questionsAsked").populate("tagsCreated").exec()
         res.json({user})
     }catch(error){
         res.status(500).json({ error: 'Internal Server Error' });
@@ -490,9 +509,10 @@ app.delete('/deleteTag/:tagname', async(req,res) =>{
         }
         let tag = await TagsModel.findOne({name: req.params.tagname}).exec()
         let user = await UserModel.findOne({email: req.session.user, tagsCreated : {$in : [tag._id]}}).exec()
+        let adminuser = await UserModel.findOne({email: req.session.user, role : "admin"}).exec()
 
-        if(user === null){
-            throw new Error("Current user is not the author")
+        if(user === null && adminuser == null){
+            throw new Error("Do not have permissions")
         }
         if(tag.refcount > 0){
             throw new Error("Tag still has questions")
@@ -504,7 +524,46 @@ app.delete('/deleteTag/:tagname', async(req,res) =>{
         }
         res.json({success:true})
     }catch(error){
-        res.status(500).json({ error: 'Internal Server Error' });
+        if(error.message === "Do not have permissions"){
+            res.status(400).json({ error: 'Error: You do not have the permissions required to delete this tag' });
+        }else if(error.message === "Tag still has questions"){
+            res.status(400).json({ error: 'Error: Tag still has questions' });
+        }else{
+            res.status(400).json({ error: 'Error: Internal Server Error' });
+        }
+    }
+})
+
+app.post('/user/editTag/:tagname', async(req,res) =>{
+    try {
+
+        if(!req.session.user){
+            throw new Error("User not logged in")
+        }
+        let tag = await TagsModel.findOne({name: req.params.tagname}).exec()
+        let user = await UserModel.findOne({email: req.session.user, tagsCreated : {$in : [tag._id]}}).exec()
+        let adminuser = await UserModel.findOne({email: req.session.user, role : "admin"}).exec()
+
+        if(user === null && adminuser == null){
+            throw new Error("Do not have permissions")
+        }
+        if(tag.refcount > 0){
+            throw new Error("Tag still has questions")
+        }
+
+        let response = await TagsModel.findByIdAndUpdate({_id: tag._id},{name: req.body.newname})
+        if(response){
+            console.log("Tags Edited")
+        }
+        res.json({success:true})
+    }catch(error){
+        if(error.message === "Do not have permissions"){
+            res.status(400).json({ error: 'Error: You do not have the permissions required to edit this tag' });
+        }else if(error.message === "Tag still has questions"){
+            res.status(400).json({ error: 'Error: Tag still has questions' });
+        }else{
+            res.status(400).json({ error: 'Error: Internal Server Error' });
+        }
     }
 })
 

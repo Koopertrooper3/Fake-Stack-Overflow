@@ -146,18 +146,22 @@ function EditQuestionForm({subjectQuestion,handleQuestionPageToggle,changePageVi
         //Unroll the tag string
         async function unrollTagString(){
 
-            let response = await axios.get('http://localhost:8000/singleQuestion/'+subjectQuestion._id)
-            let question = response.data.question
-            let finalTagString = question.tags.reduce((tagstring, elem)=>{
-    
-                return tagstring += elem.name + " "
-    
-            },"")
+            try{
+                let response = await axios.get('http://localhost:8000/singleQuestion/'+subjectQuestion._id)
+                let question = response.data.question
+                let finalTagString = question.tags.reduce((tagstring, elem)=>{
+        
+                    return tagstring += elem.name + " "
+        
+                },"")
 
-            setQuestionData((prevData) => {
-                const newData = { ...prevData, edit_tags: finalTagString };
-                return newData;
-            });
+                setQuestionData((prevData) => {
+                    const newData = { ...prevData, edit_tags: finalTagString };
+                    return newData;
+                });
+            }catch(err){
+                alert(err.response.data.error)  
+            }
         }
 
         unrollTagString()
