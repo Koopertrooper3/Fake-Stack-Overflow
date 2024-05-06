@@ -171,7 +171,7 @@ function Listofquestions({questions}){
     return(
         <tr className="main_content">
             <td id='content_main_body' className='main_content'>
-                {questions}
+                {questions.length > 0 ? questions : <h1>No Questions Found</h1>}
             </td>
         </tr>
     )
