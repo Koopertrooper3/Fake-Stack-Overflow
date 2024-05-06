@@ -6,13 +6,13 @@ import {dbCountQuestionsPerTag} from '../models/datamethods.js'
 //This is the Tags page,the page that lists all the tags in them model
 
 //This will be used as THE entry point for tags
-export function UserTagsPage({handleQuestionPageToggle,handleTagsPageToggle,handleTagStateChange,tagsCreated}) {
+export function UserTagsPage({handleQuestionPageToggle,handleTagsPageToggle,handleTagStateChange,tagsCreated,registeredState}) {
     return (
         <div id="main_body" class="main_body"> 
             <table className="main_body">
             <tbody>
                 <tr className="main_body">
-                    <FakeStackOverflowSidebar toggleQuestionPage = {handleQuestionPageToggle} handleTagsPageToggle = {handleTagsPageToggle}/>
+                    <FakeStackOverflowSidebar toggleQuestionPage = {handleQuestionPageToggle} handleTagsPageToggle = {handleTagsPageToggle} registeredState={registeredState}/>
                     <TagsMainContent handleTagStateChange={handleTagStateChange} tagsCreated={tagsCreated}/>
                 </tr>
             </tbody>

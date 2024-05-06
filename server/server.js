@@ -419,13 +419,18 @@ app.delete('/singlequestion/:questionid', async(req,res) =>{
                 await commentsModel.deleteOne({_id: commentElem})
             }
 
-            let test = await answerElem.deleteOne({_id: answerElem._id})
+            let test = await AnswerModel.deleteOne({_id: answerElem._id})
         }
-        let res = await questionsModel.deleteOne({_id: question._id})
-        if(res){
+
+        for await( const tagElem of question.tags){
+            await TagsModel.findOneAndUpdate({_id: tagElem._id}, {$inc: {refcount : -1}})
+
+        }
+        let response = await questionsModel.deleteOne({_id: question._id})
+        if(response){
             console.log("Question Deleted")
         }
-        res.send()
+        res.json({success: true})
     }catch(error){
         res.status(500).json({ error: 'Internal Server Error' });
     }
@@ -493,8 +498,8 @@ app.delete('/deleteTag/:tagname', async(req,res) =>{
             throw new Error("Tag still has questions")
         }
 
-        let res = await TagsModel.deleteOne({_id: tag._id})
-        if(res){
+        let response = await TagsModel.deleteOne({_id: tag._id})
+        if(response){
             console.log("Tags Deleted")
         }
         res.json({success:true})

@@ -27,7 +27,7 @@ function ViewQuestion({question, handleQuestionPageToggle, handleTagsPageToggle,
                 <tbody>
                     <tr className='main_body'>
                         
-                        <FakeStackOverflowSidebar toggleQuestionPage = {handleQuestionPageToggle} handleTagsPageToggle = {handleTagsPageToggle}/>
+                        <FakeStackOverflowSidebar toggleQuestionPage = {handleQuestionPageToggle} handleTagsPageToggle = {handleTagsPageToggle} registeredState={registeredState}/>
                         <td id='main_content' className='main_content'>
                             <div>
                                 <QuestionElement question={question} handleSubmitQuestionPageToggle={handleSubmitQuestionPageToggle} registeredState={registeredState}/>

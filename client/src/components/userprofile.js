@@ -3,7 +3,7 @@ import '../stylesheets/App.css';
 import {FakeStackOverflowSidebar } from './globalcomponents.js';
 import axios from 'axios';
 
-export function UserProfile({handleQuestionPageToggle,handleTagsPageToggle,changePageView}) {
+export function UserProfile({handleQuestionPageToggle,handleTagsPageToggle,registeredState,changePageView}) {
 
     const [userName, setUsername] = useState("")
     const [userReputation,setUserReputation] = useState(50)
@@ -35,7 +35,7 @@ export function UserProfile({handleQuestionPageToggle,handleTagsPageToggle,chang
             <table className="main_body">
                 <tbody>
                     <tr className='main_body'>
-                        <FakeStackOverflowSidebar toggleQuestionPage = {handleQuestionPageToggle} handleTagsPageToggle = {handleTagsPageToggle}/>
+                        <FakeStackOverflowSidebar toggleQuestionPage = {handleQuestionPageToggle} handleTagsPageToggle = {handleTagsPageToggle} registeredState={registeredState}/>
                         <td>
                             <UserDetails username ={userName} userReputation={userReputation} joinedByDate={joinedByDate}/>
                             <UserQuestions userQuestions = {userQuestions} changePageView ={changePageView}/>

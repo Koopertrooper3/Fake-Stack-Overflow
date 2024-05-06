@@ -39,10 +39,7 @@ function App() {
   const [registeredState, setRegisteredState] = useState(false)
 
   const handleQuestionPageToggle = () => {
-    //setShowWelcomePage(false);
-    //setShowQuestionPage(true);
-    //setShowTagsPage(false);
-    //setShowSubmitQuestion(false);
+
     setPageview("homePage")
     setshowQuestionAnswerPage(null);
     setShowSubmitAnswer(null);
@@ -55,10 +52,7 @@ function App() {
 
   //Switch to Tags Page
   const handleTagsPageToggle = () => {
-    //setShowWelcomePage(false);
-    //setShowQuestionPage(false);
-    //setShowSubmitQuestion(false);
-    //setShowTagsPage(true);
+
     setPageview("tagsPage")
 
   };
@@ -77,7 +71,6 @@ function App() {
 
   //Process changes in the three filters and passes it down to question
   const setFilterHandler = (filter) =>{
-    setSearchString("");
     setTagState("");
     setFilter(filter)
 
@@ -202,7 +195,7 @@ function App() {
     return(
       <>
       <FakeStackOverflowTopbar toggleWelcomePage = {handleWelcomePageToggle} toggleQuestionPage = {handleQuestionPageToggle} handleSearchString = {handleSearchString} />
-      <UserProfile handleQuestionPageToggle = {handleQuestionPageToggle} handleTagsPageToggle={handleTagsPageToggle} changePageView ={changePageView}/>
+      <UserProfile handleQuestionPageToggle = {handleQuestionPageToggle} handleTagsPageToggle={handleTagsPageToggle} registeredState= {registeredState} changePageView ={changePageView}/>
       </>
     )
   }else if(pageView === "editQuestion"){
@@ -210,7 +203,7 @@ function App() {
       <>
         <FakeStackOverflowTopbar toggleWelcomePage = {handleWelcomePageToggle} toggleQuestionPage = {handleQuestionPageToggle} handleSearchString = {handleSearchString} />
         <EditQuestionPage handleQuestionPageToggle = {handleQuestionPageToggle} handleTagsPageToggle={handleTagsPageToggle} changePageView ={changePageView}
-        subjectQuestion = {showEditedQuestion}/>
+        subjectQuestion = {showEditedQuestion} registeredState={registeredState}/>
       </>
     )
   }else if(pageView === "homePage"){
@@ -227,14 +220,16 @@ function App() {
     return(
       <>
       <FakeStackOverflowTopbar toggleWelcomePage = {handleWelcomePageToggle} toggleQuestionPage = {handleQuestionPageToggle} handleSearchString = {handleSearchString} />
-      <UserTagsPage handleQuestionPageToggle = {handleQuestionPageToggle} handleTagsPageToggle={handleTagsPageToggle} handleTagStateChange={handleTagStateChange} tagsCreated={showTagsCreated}/>
+      <UserTagsPage handleQuestionPageToggle = {handleQuestionPageToggle} handleTagsPageToggle={handleTagsPageToggle} handleTagStateChange={handleTagStateChange} 
+      tagsCreated={showTagsCreated} registeredState={registeredState}/>
       </>
     );
   }else if(pageView === "tagsPage"){
     return (
       <>
       <FakeStackOverflowTopbar toggleWelcomePage = {handleWelcomePageToggle} toggleQuestionPage = {handleQuestionPageToggle} handleSearchString = {handleSearchString} />
-      <TagsPage handleQuestionPageToggle = {handleQuestionPageToggle} handleTagsPageToggle={handleTagsPageToggle} handleTagStateChange={handleTagStateChange} />
+      <TagsPage handleQuestionPageToggle = {handleQuestionPageToggle} handleTagsPageToggle={handleTagsPageToggle} handleTagStateChange={handleTagStateChange} 
+      registeredState={registeredState}/>
       </>
     )
   }else if(pageView === "submitQuestion"){
@@ -246,7 +241,7 @@ function App() {
     return(
       <>
         <FakeStackOverflowTopbar toggleWelcomePage = {handleWelcomePageToggle} toggleQuestionPage = {handleQuestionPageToggle} handleSearchString = {handleSearchString} />
-        <NewQuestionPage handleQuestionPageToggle = {handleQuestionPageToggle} handleTagsPageToggle={handleTagsPageToggle} changePageView={changePageView}/>
+        <NewQuestionPage handleQuestionPageToggle = {handleQuestionPageToggle} handleTagsPageToggle={handleTagsPageToggle} changePageView={changePageView} registeredState={registeredState}/>
       </>
     )
 
@@ -267,7 +262,8 @@ function App() {
     return(
       <>
         <FakeStackOverflowTopbar toggleWelcomePage = {handleWelcomePageToggle} toggleQuestionPage = {handleQuestionPageToggle} handleSearchString = {handleSearchString} />
-        <SubmitAnswer question ={showSubmitAnswer} toggleQuestionPage={handleQuestionPageToggle} handleTagsPageToggle={handleTagsPageToggle} changePageView={changePageView}/>
+        <SubmitAnswer question ={showSubmitAnswer} toggleQuestionPage={handleQuestionPageToggle} handleTagsPageToggle={handleTagsPageToggle} changePageView={changePageView}
+        registeredState={registeredState}/>
       </>
     )
   }
