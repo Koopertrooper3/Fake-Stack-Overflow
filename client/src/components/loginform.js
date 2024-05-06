@@ -1,7 +1,7 @@
 import axios from 'axios';
 import React, { useState } from 'react';
 
-const LoginForm = ({ toggleQuestionPage }) => {
+const LoginForm = ({ toggleQuestionPage,handleLogIn }) => {
     const [formData, setFormData] = useState({
         email: '',
         password: ''
@@ -26,17 +26,16 @@ const LoginForm = ({ toggleQuestionPage }) => {
         }
 
         try {
-            const response = await axios.post('http://localhost:8000/login', formData);
+            const response = await axios.post('http://localhost:8000/login', formData, {withCredentials: true});
             //window.location.href = '/questions';
             
             if (response.data.success) {
                 console.log('succsess loging in'); // need to redirect to the questions page
                 //alert('success!');
+                handleLogIn()
                 toggleQuestionPage(); // Toggle to question page
                 
-            }
-        
-            else {
+            }else {
                 setErrorMessage(response.data.errorMessage);
             }
         } catch (error) {

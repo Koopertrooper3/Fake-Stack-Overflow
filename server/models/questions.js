@@ -8,6 +8,10 @@ var questionsModelSchema = new Schema ({
         maxlength: 100,
         required: true
     },
+    summary: {
+        type: String,
+        required: true
+    },
     text: {
         type: String,
         required: true
@@ -30,8 +34,9 @@ var questionsModelSchema = new Schema ({
         ref: 'answerModel',
     }],
     asked_by: {
-        type: String,
-        default: "Anonymous"
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
     },
     ask_date_time: {
         type: Date,
@@ -44,7 +49,11 @@ var questionsModelSchema = new Schema ({
     votes: {
         type: Number, 
         default: 0 
-    }
+    },
+    comments: [{
+        type: Schema.Types.ObjectId,
+        ref: 'commentModel',
+    }],
 });
 
 questionsModelSchema

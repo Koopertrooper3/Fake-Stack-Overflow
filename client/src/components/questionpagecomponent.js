@@ -8,11 +8,11 @@ import { dbCountQuestionsPerTag, dbGetAndSearchQuestions, dbGetAndFilterQuestion
 //considered the homepage of the website
 
 //This will be used as the homepage/questions page
-export function QuestionPage({model,searchString, questionFilter,setFilterHandler,toggleQuestionPage,handleTagsPageToggle,tagState,handleSubmitQuestionPageToggle,handleshowQuestionAnswerPage}) {
+export function QuestionPage({model,searchString, questionFilter,setFilterHandler,toggleQuestionPage,handleTagsPageToggle,tagState,handleSubmitQuestionPageToggle,handleshowQuestionAnswerPage,registeredState}) {
     return (
         <QuestionContent model={model} searchString={searchString} questionFilter = {questionFilter} setFilterHandler={setFilterHandler} 
         toggleQuestionPage = {toggleQuestionPage} handleTagsPageToggle={handleTagsPageToggle} tagState={tagState} handleSubmitQuestionPageToggle={handleSubmitQuestionPageToggle}
-        handleshowQuestionAnswerPage={handleshowQuestionAnswerPage}/>
+        handleshowQuestionAnswerPage={handleshowQuestionAnswerPage} registeredState={registeredState}/>
     );
 }
 
@@ -27,7 +27,8 @@ class QuestionContent extends React.Component{
                         <FakeStackOverflowSidebar toggleQuestionPage = {this.props.toggleQuestionPage} handleTagsPageToggle = {this.props.handleTagsPageToggle}/>
                         <QuestionMainContent model={this.props.model} searchString ={this.props.searchString}
                         questionFilter = {this.props.questionFilter} setFilterHandler={this.props.setFilterHandler} tagState={this.props.tagState} 
-                        handleshowQuestionAnswerPage={this.props.handleshowQuestionAnswerPage} handleSubmitQuestionPageToggle = {this.props.handleSubmitQuestionPageToggle} />
+                        handleshowQuestionAnswerPage={this.props.handleshowQuestionAnswerPage} handleSubmitQuestionPageToggle = {this.props.handleSubmitQuestionPageToggle}
+                        registeredState={this.props.registeredState} />
                         {/*Add question page here */}
                     </tr>
                 </tbody>
@@ -37,7 +38,7 @@ class QuestionContent extends React.Component{
     }
 }
 
-function QuestionMainContent({model, searchString, questionFilter, setFilterHandler, tagState, handleshowQuestionAnswerPage,handleSubmitQuestionPageToggle}){
+function QuestionMainContent({model, searchString, questionFilter, setFilterHandler, tagState, handleshowQuestionAnswerPage,handleSubmitQuestionPageToggle,registeredState}){
     //Tables cannot be nested under tables
     const [numOfQuestions, setNumOfQuestions] = useState(0);
     const [questions,setQuestions] = useState([])
@@ -79,51 +80,21 @@ function QuestionMainContent({model, searchString, questionFilter, setFilterHand
                 })
 
                 let date = dbFormatDate(element.ask_date_time)
-                questionElements.push(<QuestionElement question={element} tags={thisQuestionTags} date={date} handleshowQuestionAnswerPage={handleshowQuestionAnswerPage}/>)
+                questionElements.push(<QuestionElement question={element} tags={thisQuestionTags} date={date} handleshowQuestionAnswerPage={handleshowQuestionAnswerPage}
+                registeredState = {registeredState}/>)
             });
 
             setQuestions(questionElements)
             setNumberOfQuestions(questionElements.length)
 
           }));
-
-
         
-        // let questions = []
-        
-        // if(tagState !== ""){
-        //     questions = model.countQuestionsPerTag(tagState);
-        // }else if(searchString !== ""){
-        //     questions = model.getAndSearchQuestions(searchString);
-        //     console.log("searchstring")
-        // }else{
-        //     questions = model.getAndFilterQuestions(questionFilter);
-        //     console.log("filter")
-        // }
-
-        // let questionElements = [];
-        // questions.forEach(element => {
-
-        //     let tags = model.countTagsPerQuestion(element)
-        //     tags = tags.map(tag =>{
-        //         return <TagElement tag={tag} />
-        //     })
-
-        //     let date = model.formatDate(element.askDate)
-        //     questionElements.push(<QuestionElement question={element} tags={tags} date={date} handleshowQuestionAnswerPage={handleshowQuestionAnswerPage}/>)
-        // });
-
-        // setQuestions(questionElements)
-        // setNumberOfQuestions(questionElements.length)
-        
-
-        
-    },[model,questionFilter,handleshowQuestionAnswerPage,searchString,tagState])
+    },[model,questionFilter,handleshowQuestionAnswerPage,searchString,tagState,registeredState])
 
     return(
         <table className="main_content" id="main_table_body">
             <tbody>
-                <QuestionHeader setFilterHandler={setFilterHandler} numOfQuestions={numOfQuestions} handleSubmitQuestionPageToggle={handleSubmitQuestionPageToggle}/>
+                <QuestionHeader setFilterHandler={setFilterHandler} numOfQuestions={numOfQuestions} handleSubmitQuestionPageToggle={handleSubmitQuestionPageToggle} registeredState={registeredState}/>
                 {/*Actual questions here */}
                 <Listofquestions questions={questions} filter={questionFilter}/>
             </tbody>
@@ -131,14 +102,14 @@ function QuestionMainContent({model, searchString, questionFilter, setFilterHand
     )
 }
 
-function QuestionHeader({setFilterHandler,numOfQuestions,handleSubmitQuestionPageToggle}){
+function QuestionHeader({setFilterHandler,numOfQuestions,handleSubmitQuestionPageToggle,registeredState}){
     return(
         <tr className="main_content" id="main_content_tr_header">
           <td id="main_content_header" className="main_content">
             <table className="main_content_header"> 
 
                 <tbody>
-                    <QuestionHeaderRowOne handleSubmitQuestionPageToggle={handleSubmitQuestionPageToggle}/>
+                    <QuestionHeaderRowOne handleSubmitQuestionPageToggle={handleSubmitQuestionPageToggle} registeredState={registeredState}/>
       
                     <QuestionHeaderRowTwo setFilterHandler={setFilterHandler} numOfQuestions={numOfQuestions}/>
                 </tbody>
@@ -148,7 +119,7 @@ function QuestionHeader({setFilterHandler,numOfQuestions,handleSubmitQuestionPag
     )
 }
 
-function QuestionHeaderRowOne({handleSubmitQuestionPageToggle}){
+function QuestionHeaderRowOne({handleSubmitQuestionPageToggle,registeredState}){
     /* const [showSubmitQuestion, setShowSubmitQuestion] = useState(false);
 
     const toggleSubmitQuestion = () => {
@@ -160,7 +131,7 @@ function QuestionHeaderRowOne({handleSubmitQuestionPageToggle}){
                 <h2 className="main_content_header" id="allOrSearch">All Questions</h2>
             </td>
             <td className="main_content_header">
-                <button id="ask_question_button" onClick={handleSubmitQuestionPageToggle}>Ask Question</button>
+                {registeredState ? <button id="ask_question_button" onClick={handleSubmitQuestionPageToggle}>Ask Question</button> : null}
             </td>
         </tr>
     )
@@ -208,7 +179,7 @@ function Listofquestions({questions}){
 function TagElement({tag}){
     return( <p className='tags'>{tag}</p>)
 }
-function QuestionElement({ question, tags, date, handleshowQuestionAnswerPage }) {
+function QuestionElement({ question, tags, date, handleshowQuestionAnswerPage,registeredState }) {
     const [votes, setVotes] = useState(question.votes);
 
     const handleUpvote = async () => {
@@ -244,7 +215,7 @@ function QuestionElement({ question, tags, date, handleshowQuestionAnswerPage })
                 <p className='questionStats'>{question.answers.length} answers</p>
                 <p className='questionStats'>{question.views} views</p>
             </div>
-            <div id="voteButtons">
+            {registeredState && <div id="voteButtons">
                 <button onClick={handleUpvote} className="voteButton" aria-label="Upvote">
                     ▲
                 </button>
@@ -254,14 +225,15 @@ function QuestionElement({ question, tags, date, handleshowQuestionAnswerPage })
                 <button onClick={handleDownvote} className="voteButton" aria-label="Downvote">
                     ▼
                 </button>
-            </div>
+            </div>}
             <div className="questionElement">
                 <h3 className='questionTitle' onClick={() => handleshowQuestionAnswerPage(question)} key={question._id}>{question.title}</h3>
-                {tags}
+                <div><p1 className='questionSummary' key={question._id}>{question.summary}</p1></div>
+                <div>{tags}</div>
             </div>
             <div className="questionElement">
                 <p className='authorInfo'>
-                    <span className="questionUsername">{question.asked_by}</span> asked {date}
+                    <span className="questionUsername">{question.asked_by.username}</span> asked {date}
                 </p>
             </div>
             {/*

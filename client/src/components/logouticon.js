@@ -10,6 +10,7 @@ const LogoutIcon = ({toggleWelcomePage}) => {
       await axios.post('http://localhost:8000/logout');
       // Redirect to the welcome page after successful logout
       toggleWelcomePage();
+      alert("Logout successful")
       //alert('logout succsess!!!!!');
      //window.location.href = '/'; // Redirect to the welcome page
     } catch (error) {
