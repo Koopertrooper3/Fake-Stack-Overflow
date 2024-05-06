@@ -4,7 +4,7 @@ import { FakeStackOverflowSidebar } from './globalcomponents';
 import { dbFormatDate } from '../models/datamethods';
 import axios from 'axios';
 
-function ViewQuestion({ question, handleQuestionPageToggle, handleTagsPageToggle, handleSubmitQuestionPageToggle, handleShowSubmitAnswerPage, registeredState }) {
+function ViewQuestion({ question, handleQuestionPageToggle, handleTagsPageToggle, handleSubmitQuestionPageToggle, handleShowSubmitAnswerPage, registeredState,changePageView }) {
 
     const [answers, setAnswers] = useState([]);
     const [comments, setComments] = useState([]);
