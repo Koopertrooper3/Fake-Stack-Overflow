@@ -108,7 +108,7 @@ function UserElement({username,userid,changePageView}){
         try{
             await axios.delete("http://localhost:8000/admin/users/"+userid,{withCredentials:true})
             alert("User Successfully Deleted")
-            changePageView("userProfile")
+            changePageView("homePage")
         }catch(err){
             setDeleteConfirmation(false)
             alert(err.response.data.error)  
