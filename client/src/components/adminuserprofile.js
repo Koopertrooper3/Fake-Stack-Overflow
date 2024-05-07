@@ -84,7 +84,7 @@ function UserQuestions({userQuestions,changePageView}){
     },[userQuestions,changePageView,setQuestionElements])
     return(
         <div className='userQuestions'>
-            {questionElements}
+            {questionElements.length > 0? questionElements : <h1>No Users</h1>}
         </div>
     );
 }
