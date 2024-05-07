@@ -179,20 +179,25 @@ function App() {
 
   useEffect( ()=>{
     async function checkCookie(){
-     let response = await axios.get(`http://localhost:8000/user/probecookie`,{withCredentials: true})
 
-     if(response.data.cookie){
-      setRegisteredState(true)
-      if(pageView === 'welcomePage'){
-        changePageView("homePage")
-      }
+      try{
+        let response = await axios.get(`http://localhost:8000/user/probecookie`,{withCredentials: true})
 
-      if(response.data.role === "admin"){
-        setAdminState(true)
+      if(response.data.cookie){
+        setRegisteredState(true)
+        if(pageView === 'welcomePage'){
+          changePageView("homePage")
+        }
+
+        if(response.data.role === "admin"){
+          setAdminState(true)
+        }
+      }else{
+        setRegisteredState(false)
       }
-     }else{
-      setRegisteredState(false)
-     }
+      }catch(err){
+        
+      }
     }
 
     checkCookie()

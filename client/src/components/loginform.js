@@ -40,7 +40,7 @@ const LoginForm = ({ toggleQuestionPage,handleLogIn }) => {
             }
         } catch (error) {
             console.error('Error logging in', error);
-            setErrorMessage(error.errorMessage);
+            setErrorMessage(error.message);
         }
     };
 
