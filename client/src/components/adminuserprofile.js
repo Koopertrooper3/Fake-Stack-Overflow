@@ -34,7 +34,7 @@ export function AdminUserProfile({handleQuestionPageToggle,handleTagsPageToggle,
         }
         
         retriveUser()
-    },[])
+    },[userid])
     return (
         <div id ="main_body" className="main_body">
             <table className="main_body">
