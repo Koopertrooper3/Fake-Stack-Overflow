@@ -15,7 +15,7 @@ const LogoutIcon = ({toggleWelcomePage}) => {
      //window.location.href = '/'; // Redirect to the welcome page
     } catch (error) {
       console.error('Logout failed!!!!!!!:', error);
-      alert('logout fail ＼(｀0´)／');
+      alert('logout fail \\(`0`)/');
     }
   };
 
