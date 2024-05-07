@@ -61,6 +61,24 @@ The Fake StackOverflow web application is a simulated platform resembling the po
 - Use caution with sensitive operations, such as modifying the database schema or running scripts.
 - CORS middleware is enabled for development purposes and should be disabled in production environments for security reasons.
 
-## Team Member 1 Contribution
+## Christian's Contribution
+Users and Admin
+User and Admin profiles
+Tag creation
+Sessions
+Tags Page
+Search
+Posting new questions (backend)
+Posting new answers (backend)
+Sort by filter
+Reputation System
+Editing and Deleting Questions
+Editing and Deleting Tags
 
-## Team Member 2 Contribution
+## Varia's Contribution
+Welcome page
+Question page
+Question Details Page
+Comments
+Posting new questions (frontend)
+Posting new answers (frontend)
