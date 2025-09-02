@@ -1,12 +1,9 @@
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-24ddc0f5d75046c5622901739e7c5dd533143b0c8e959d652212380cedb1ea36.svg)](https://classroom.github.com/a/tRxoBzS5)
-Add design docs in *images/*
+## Instructions:
 
-## Instructions: Running the Fake StackOverflow Web Application
-
-**A. GENERAL BACKGROUND:**
+**A. BACKGROUND:**
 The Fake StackOverflow web application is a simulated platform resembling the popular Stack Overflow website, where users can ask and answer questions related to programming and technology. The application comprises both a frontend built using React and a backend implemented with Node.js and MongoDB. React is used for the frontend interface, while Node.js serves as the backend server, handling data storage and retrieval using MongoDB as the database.
 
-**Salient Features:**
+**Features:**
 - Frontend built with React framework.
 - Backend server powered by Node.js with Express framework.
 - Data storage and retrieval managed by MongoDB.
@@ -56,29 +53,7 @@ The Fake StackOverflow web application is a simulated platform resembling the po
    - User authentication features may be available based on the implementation.
    - Explore various functionalities and interact with the application as desired.
 
-**C. SPECIAL NOTICES:**
+**C. NOTE:**
 - Ensure that MongoDB is properly installed and running before starting the server.
 - Use caution with sensitive operations, such as modifying the database schema or running scripts.
 - CORS middleware is enabled for development purposes and should be disabled in production environments for security reasons.
-
-## Christian's Contribution
-Users and Admin
-User and Admin profiles
-Tag creation
-Sessions
-Tags Page
-Search
-Posting new questions (backend)
-Posting new answers (backend)
-Sort by filter
-Reputation System
-Editing and Deleting Questions
-Editing and Deleting Tags
-
-## Varia's Contribution
-Welcome page
-Question page
-Question Details Page
-Comments
-Posting new questions (frontend)
-Posting new answers (frontend)
